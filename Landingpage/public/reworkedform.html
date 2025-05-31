@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="reworkedform.css">
+  <link rel="shortcut icon" href="./ktt_logo.jpg" type="image/x-icon">
+</head>
+<body>
+  <div class="master">
+    <div class="clogo">
+      <img src="./ktt_logo.jpg" width="100px" height="100px" alt="Company logo" title="KT Telematic solution">
+    </div>
+    
+    <form id="userForm">
+      <div class="inputs">
+        <div class="input-container">
+          <label for="empid">Employee ID</label>
+          <input type="number" id="empid" placeholder="Enter your ID" maxlength="50" minlength="3" required>
+        </div>
+        <div class="input-container">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="Enter your name" maxlength="50" minlength="3" required>
+        </div>
+        <div class="input-container">
+          <label for="email">Email ID</label>
+          <input type="text" id="email" placeholder="Enter your Email" maxlength="50" minlength="3" required>
+          <i class="fa fa-user icon"></i>
+        </div>
+        <div class="input-container">
+          <label for="psw">Password</label>
+          <input type="password" id="psw" placeholder="Enter your password" required maxlength="20" minlength="4">
+          <i class="fa fa-lock icon"></i>
+        </div>
+        <div class="input-container-role">
+          <label for="role">Role</label><br>
+          <select name="role" id="role" required>
+            <option value="" disabled selected>Select the field here</option>
+            <option value="Manager">Manager</option>
+            <option value="Employee">Employee</option>
+          </select>
+        </div>
+        <div class="input-container-manager">
+          <label for="manager-id">Manager ID</label><br>
+          <input type="number" id="manager-id" placeholder="Enter your manager ID">
+        </div>
+        <div class="login">
+          <button type="submit">Login</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Move script here so everything above is loaded first -->
+  <script src="reworkform.js"></script>
+</body>
+</html>

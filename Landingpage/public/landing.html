@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="shortcut icon" href="../Landingpage/ktt_logo.jpg" type="image/x-icon"> <title>Sales Visit Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="landingpage.css">
+</head>
+<body>
+
+    <nav class="headernav">
+        <div><a href="#" style="font-weight: 900;">Calendar</a></div>
+        <div><a href="#" id="visittable">Visits</a></div>
+        <div><a href="#">Dashboard</a></div>
+    </nav>
+
+    <div class="main-content">
+
+        <div class="calendar">
+            <div class="calendar-header">
+                <h2 style="display: inline-block; margin-left: 0%;">April 2025</h2>
+                <span class="angelbrackets">
+                    <span>&lt;</span>
+                    <span>&gt;</span>
+                </span>
+            </div>
+            <div class="calendar-grid">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                <div></div><div></div><div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div><div class="day">5</div>
+                <div class="day">6</div><div class="day">7</div><div class="day">8</div><div class="day completed">9</div><div class="day">10</div><div class="day">11</div><div class="day cancelled">12</div>
+                <div class="day">13</div><div class="day">14</div><div class="day">15</div><div class="day">16</div><div class="day pending">17</div><div class="day">18</div><div class="day">19</div>
+                <div class="day">20</div><div class="day">21</div><div class="day">22</div><div class="day today">23</div><div class="day">24</div><div class="day">25</div><div class="day completed">26</div>
+                <div class="day">27</div><div class="day">28</div><div class="day cancelled">29</div><div class="day">30</div><div></div>
+            </div>
+            <h3>Other Calendars</h3>
+            <a href="#">Employee1</a>
+            <a href="#">Employee2</a>
+            <a href="#">Employee3</a>
+        </div>
+
+        <div class="week-view-container">
+            <div class="week-header">
+                <h3>Visit Timeline</h3>
+                <div class="week-nav">
+                    <button>&lt; Previous</button>
+                    <button>Today</button>
+                    <button>Next &gt;</button>
+                </div>
+                <div class="date-range">April 20 - 26, 2025</div>
+            </div>
+            
+            <div class="day-headers">
+                <div class="day-header-cell"></div>
+                <div class="day-header-cell">
+                    <div class="day-name">Sun</div>
+                    <div class="day-number">20</div>
+                </div>
+                <div class="day-header-cell">
+                    <div class="day-name">Mon</div>
+                    <div class="day-number">21</div>
+                </div>
+                <div class="day-header-cell">
+                    <div class="day-name">Tue</div>
+                    <div class="day-number">22</div>
+                </div>
+                <div class="day-header-cell">
+                    <div class="day-name">Wed</div>
+                    <div class="day-number today">23</div>
+                </div>
+                <div class="day-header-cell">
+                    <div class="day-name">Thu</div>
+                    <div class="day-number">24</div>
+                </div>
+                <div class="day-header-cell">
+                    <div class="day-name">Fri</div>
+                    <div class="day-number">25</div>
+                </div>
+                <div class="day-header-cell">
+                    <div class="day-name">Sat</div>
+                    <div class="day-number">26</div>
+                </div>
+            </div>
+            
+            <div class="time-grid-wrapper">
+                <div class="time-grid">
+                    <div class="time-label">1 AM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 2 - Client B (1:10 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 2 - Client B (11:00 AM)</div></div><div class="grid-cell"></div>
+                    <div class="time-label">2 AM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">3 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event completed">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event completed">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">4 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">5 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">6 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">7 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">8 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event completed">Emp 3 - Client D (10:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event completed">Emp 3 - Client D (10:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">9 AM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 1 - Client A (9:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">10 AM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event completed">Emp 3 - Client D (10:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"><div class="event completed">Emp 3 - Client F (10:00 AM)</div></div>
+                    <div class="time-label">11 AM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event planned">Emp 2 - Client B (11:00 AM)</div></div><div class="grid-cell"></div><div class="grid-cell"><div class="event in-progress">Emp 1 - Client C (2:00 PM)</div></div><div class="grid-cell"><div class="event planned">Emp 2 - Client B (11:00 AM)</div></div><div class="grid-cell"></div>
+                    <div class="time-label">12 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">1 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event cancelled">Emp 2 - Client E (1:00 PM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">2 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"><div class="event in-progress">Emp 1 - Client C (2:00 PM)</div></div><div class="grid-cell"></div>
+                    <div class="time-label">3 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">4 PM</div><div class="grid-cell"></div><div class="grid-cell"><div class="event pending">Emp 3 - Client G (4:00 PM)</div></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">5 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">6 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">7 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">8 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">9 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">10 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="time-label">11 PM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="visit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="submit">Schedule Visit</button>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <form id="visit-form">
+                <div class="form-section">
+                    <h3>Company Details</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="employeeid">Company ID</label>
+                            <input type="text" id="employeeid" placeholder="Enter Company ID">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="company-id">Company ID</label>
+                            <input type="text" id="company-id" placeholder="Enter Company ID">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                           <label for="company-location">Company Location</label>
+                           <input type="text" id="company-location" placeholder="Enter Location">
+                        </div>
+                    </div>
+
+                    <h3>Customer Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customer-id">Customer ID</label>
+                            <input type="text" id="customer-id" placeholder="Enter Customer ID">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customer name">Company ID</label>
+                            <input type="text" id="customer name" placeholder="Customer Name">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact-details">Contact Details</label>
+                            <input type="text" id="contact-details" placeholder="Enter contact details">
+
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department" placeholder="Customer Department">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                           <label for="company-id">Company ID</label>
+                           <input type="text" id="company-id" placeholder="Enter Company ID">
+                        </div>
+                    </div>
+
+                    <h3>Visits</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="employeeid">Employee ID</label>
+                            <input type="text" id="employeeid" placeholder="Employee ID">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerid">Customer ID</label>
+                            <input type="text" id="customerid" placeholder="Customer ID">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="visit-date">Visit Date</label>
+                            <input type="date" id="visit-date" placeholder="Visit Date">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="starttime">Visit start time</label>
+                            <input type="time" id="starttime" placeholder="Visit start time">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="endtime">Visit end time</label>
+                            <input type="time" id="endtime" placeholder="Visit end time">
+                        </div>
+                    </div>
+
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="purpose">Visit Purpose</label>
+                            <input type="text" id="purpose" placeholder="Visit purpose">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Description">Description</label>
+                            <input type="text" id="Description" placeholder="Customer Name">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <a href="#" id="maplocation">Choose on the map</a> <label for="visit-location">Location:</label>
+                        <input type="text" id="visit-location" placeholder="Enter meeting location or select on map" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="visit-status">Visit Status:</label>
+                            <select id="visit-status" name="visitStatus">
+                                <option value="Planned" selected>Planned</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In-Progress">In-Progress</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" id="visits-completed" style="display: none;"> <div class="form-group">
+                            <label for="completion-notes">Completion Notes (if any):</label>
+                            <textarea id="completion-notes" name="completionNotes" placeholder="Enter notes about the completed visit"></textarea>
+                        </div>
+                    </div>
+                    </div>
+                 <div style="text-align: right; padding: 15px 20px; border-top: 1px solid #eee;">
+                    <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="save-btn" style="margin-left: 10px;">Save Visit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="map-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Choose Location on Map</h2>
+          <span class="close-btn" onclick="closeMapModal()">&times;</span>
+        </div>
+        <div id="map-container" style="height: 400px; width: 100%; margin-bottom:15px;"></div>
+        <div style="text-align: center; padding: 0px 20px 20px 20px;">
+            <button id="confirm-location-btn" class="save-btn" style="width:100%;">Confirm Location</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./reworkform.js"></script> <script src="landingpage.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
