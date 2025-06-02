@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     employee_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     customer_id: {
@@ -37,12 +37,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    photo_url: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+  status: {
+  type: DataTypes.ENUM('Planned', 'Completed', 'Cancelled', 'Pending', 'In-Progress'),
+  allowNull: false,
+  defaultValue: 'Planned', // Default to 'Planned' when a new visit is created
+  },
   }, {
-    tableName: 'Visits',
     timestamps: false,
   });
 

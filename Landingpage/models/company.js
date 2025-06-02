@@ -1,9 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
     company_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(100),
       primaryKey: true,
-      autoIncrement: true,
     },
     company_name: {
       type: DataTypes.STRING(100),

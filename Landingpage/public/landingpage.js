@@ -1,10 +1,3 @@
-// Global variables
-let map;
-let marker;
-let selectedLatLng;
-let currentUserRole = ''; // From your original code
-
-// Utility function to get user role (from your original code)
 function getUserRole() {
     const storedRole = sessionStorage.getItem('userRole');
     return storedRole || currentUserRole;
@@ -22,13 +15,11 @@ function initializeCalendarDayListeners() {
                 return;
             }
             const monthYear = calendarHeader.textContent;
-            const visitDate = `${monthYear} ${dayNumber}`; // Consider formatting for consistency
-            formpopup(visitDate, "9 AM"); // Default time, or make it dynamic
+            const visitDate = `${monthYear} ${dayNumber}`; 
+            formpopup(visitDate, "9 AM"); 
         });
     });
 }
-
-// Open form popup (from your original code, made slightly more robust)
 function formpopup(cellDate, cellTime) {
     const modal = document.getElementById('visit-modal');
     if (!modal) {
@@ -52,7 +43,6 @@ function formpopup(cellDate, cellTime) {
     modal.style.display = 'flex';
 }
 
-// Close visit form modal (robust version)
 function closeModal() {
     const modal = document.getElementById('visit-modal');
     if (modal) {
@@ -64,20 +54,14 @@ function closeModal() {
     const mainContent = document.querySelector('.main-content');
     if (mainContent) {
         mainContent.classList.remove('blur-background');
-    } else {
-        // console.warn('In closeModal: Element with class "main-content" not found to remove blur.');
-    }
-
+    } 
     const visitForm = document.getElementById('visit-form');
     if (visitForm) {
-        visitForm.reset(); // This will reset all form fields to their default values
-         // Also reset the location field if it was populated by the map, or clear it.
+        visitForm.reset(); 
         const locationInput = document.getElementById('visit-location');
         if(locationInput) locationInput.value = '';
-
-        // Reset status dropdown to default (e.g., "Planned") and hide completed notes
         const statusSelect = document.getElementById('visit-status');
-        if(statusSelect) statusSelect.value = 'Planned'; // Or your default value
+        if(statusSelect) statusSelect.value = 'Planned';
 
         const visitCompletedInput = document.getElementById('visits-completed');
         if (visitCompletedInput) {
@@ -89,7 +73,6 @@ function closeModal() {
     }
 }
 
-// Initialize grid cell click listeners (robust version)
 function initializeGridCellListeners() {
     const gridCells = document.querySelectorAll('.grid-cell');
     if (gridCells.length === 0) {
@@ -100,11 +83,11 @@ function initializeGridCellListeners() {
     gridCells.forEach((cell, index) => {
         cell.addEventListener('click', function(e) {
             if (e.target.classList.contains('event') || e.target.closest('.event')) {
-                return; // Clicked on an existing event, don't open a new form
+                return; 
             }
 
-            const columnIndex = (index % 8); // Grid: 1 time label col + 7 day cols
-            if (columnIndex === 0) return; // Clicked on a time label cell
+            const columnIndex = (index % 8); 
+            if (columnIndex === 0) return;
 
             const dayHeaderCells = document.querySelectorAll('.day-header-cell');
             if (columnIndex < 0 || columnIndex >= dayHeaderCells.length || dayHeaderCells.length === 0) {
@@ -135,8 +118,8 @@ function initializeGridCellListeners() {
             const monthMatch = dateRangeText.match(/([A-Za-z]+)\s\d+\s*(-|,)/);
             const yearMatch = dateRangeText.match(/,\s*(\d{4})/);
             
-            const month = monthMatch ? monthMatch[1] : "April"; // Default or extract appropriately
-            const year = yearMatch ? yearMatch[1] : "2025";   // Default or extract appropriately
+            const month = monthMatch ? monthMatch[1] : "April"; 
+            const year = yearMatch ? yearMatch[1] : "2025";  
             
             const visitDate = `${month} ${dayNumber}, ${year}`;
             
@@ -154,7 +137,6 @@ function initializeGridCellListeners() {
     });
 }
 
-// DOMContentLoaded for visit status and employee ID logic (robust version)
 document.addEventListener('DOMContentLoaded', function() {
     const visitStatusSelect = document.getElementById('visit-status');
     const visitCompletedInput = document.getElementById('visits-completed');
@@ -173,313 +155,487 @@ document.addEventListener('DOMContentLoaded', function() {
     }
         });
 
-// --- MAP MODAL CODE ---
-function initializeMapFeature() {
-    const mapLocationLink = document.getElementById('maplocation');
-    if (mapLocationLink) {
-        mapLocationLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            openMapModal();
-        });
-    } else {
-        console.warn("Element with ID 'maplocation' (Choose on map link) not found.");
-    }
+async function handleVisitFormSubmit(event) {
+    event.preventDefault(); // Prevent default page reload
 
-    const confirmLocationButton = document.getElementById('confirm-location-btn');
-    if (confirmLocationButton) {
-        confirmLocationButton.addEventListener('click', function() {
-            console.log("Confirm button clicked. Current selectedLatLng:", selectedLatLng); 
-            if (selectedLatLng) {
-                const locationInput = document.getElementById('visit-location');
-                if (locationInput) {
-                    locationInput.value = `${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
-                } else {
-                    console.error("Visit location input field not found!");
-                }
-                closeMapModal();
-            } else {
-                alert("Please select a location on the map first.");
-            }
-        });
-    } else {
-        console.warn("Element with ID 'confirm-location-btn' not found.");
-    }
-}
+    const visitForm = document.getElementById('visit-form');
+    const submitButton = visitForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
+    const getFieldValue = (id) => {
+        const element = document.getElementById(id);
+        return element ? element.value.trim() : null;
+    };
 
-function openMapModal() {
-    // Moved reset logic to the beginning
-    if (map && marker) { 
-        try { // Add try-catch for safety if map/marker state is uncertain
-            map.removeLayer(marker);
-        } catch (e) {
-            console.warn("Could not remove previous marker:", e);
-        }
-        marker = null;
-    }
-    selectedLatLng = null; 
-
-    const modal = document.getElementById('map-modal');
-    if (!modal) {
-        console.error("Map modal element with ID 'map-modal' not found!");
+    const visitData = {
+        customer_id: getFieldValue('customerid'), 
+        employee_id: getFieldValue('employeeid'), 
+        date: getFieldValue('visit-date'),
+        start_time: getFieldValue('starttime'),
+        end_time: getFieldValue('endtime'),
+        location: getFieldValue('visit-location'),
+        purpose: getFieldValue('purpose'),
+        notes: document.getElementById('visit-status').value === 'Completed' ? getFieldValue('completion-notes') : getFieldValue('Description'),
+    };
+    if (!visitData.employee_id || !visitData.customer_id || !visitData.date || !visitData.start_time || !visitData.end_time || !visitData.location) {
+        alert('Please fill in all required visit details: Employee ID, Customer ID, Date, Start Time, End Time, and Location.');
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
         return;
     }
 
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.add('blur-background');
-    }
-    modal.style.display = 'flex';
+    console.log('Submitting Visit Data:', visitData); // For debugging
 
-    if (!map) { 
-        try {
-            map = L.map('map-container').setView([20.5937, 78.9629], 5); 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            map.on('click', function(e) {
-                selectedLatLng = e.latlng; 
-                console.log("Map clicked. Coords:", e.latlng, "selectedLatLng is now:", selectedLatLng);
-                if (marker) { 
-                    marker.setLatLng(e.latlng);
-                } else { 
-                    marker = L.marker(e.latlng).addTo(map);
-                }
-            });
-        } catch (e) {
-            console.error("Error initializing Leaflet map:", e);
-            alert("Could not initialize the map. Please ensure you are connected to the internet and try again.");
-        }
-    } else {
-        try { // It's good practice to invalidate size after display change
-            map.invalidateSize();
-        } catch (e) {
-            console.warn("Error invalidating map size:", e);
-        }
+    try {
+        const response = await fetch('/api/visit', { // Make sure this URL is correct
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(visitData),
+        });
+    } catch (error) {
+        console.error('Error submitting visit form:', error);
+        alert('An error occurred while saving the visit. Check the console for details.');
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
     }
 }
 
-function closeMapModal() {
-    const modal = document.getElementById('map-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.remove('blur-background');
-    }
-}
-
-// jQuery $(document).ready - main initialization block
 $(document).ready(function() {
-    // Initialize DataTables if the element exists and function is available
-    if (typeof $ !== 'undefined' && typeof $.fn.DataTable === 'function' && $('#mytable').length) {
-        try {
-            $('#mytable').DataTable();
-        } catch (e) {
-            console.warn("Error initializing DataTable:", e);
-        }
+    const visitForm = document.getElementById('visit-form');
+    if (visitForm) {
+        visitForm.addEventListener('submit', handleVisitFormSubmit);
     } else {
-        // console.warn("DataTable function or #mytable element not found."); // Less verbose
+        console.error("Visit form with ID 'visit-form' not found for submit listener.");
+    }
+
+    initializeCalendarDayListeners(); //
+    initializeGridCellListeners(); //
+});
+
+    const monthYear = document.getElementById("month-year");
+    const calendarGrid = document.querySelector(".calendar-grid");
+
+    const prevBtn = document.getElementById("prev-month");
+    const nextBtn = document.getElementById("next-month");
+
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
+
+    function renderCalendar(month, year) {
+        calendarGrid.innerHTML = "";
+        daysOfWeek.forEach(day => {
+            const dayHeader = document.createElement("div");
+            dayHeader.textContent = day;
+            calendarGrid.appendChild(dayHeader);
+        });
+
+        const firstDay = new Date(year, month).getDay(); // 0-6
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let i = 0; i < firstDay; i++) {
+            calendarGrid.appendChild(document.createElement("div"));
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement("div");
+            dayCell.classList.add("day");
+            dayCell.textContent = day;
+
+            // Highlight today
+            if (
+                day === currentDate.getDate() &&
+                month === currentDate.getMonth() &&
+                year === currentDate.getFullYear()
+            ) {
+                dayCell.classList.add("today");
+            }
+
+            calendarGrid.appendChild(dayCell);
+        }
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        monthYear.textContent = `${monthNames[month]} ${year}`;
+    }
+    prevBtn.addEventListener("click", () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    nextBtn.addEventListener("click", () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    // At the top of landingpage.js, ensure you have a way to get the current user's role if needed for display,
+// though the example below focuses on displaying fetched employee name.
+
+// ... (keep existing functions like getUserRole, initializeCalendarDayListeners, formpopup, closeModal, initializeGridCellListeners)
+
+// Helper function to parse time (you might need to adjust based on actual time format from backend)
+function formatTimeForDisplay(timeStr) {
+    if (!timeStr) return '';
+    // Assuming timeStr is like "HH:MM:SS"
+    return timeStr.substring(0, 5); // Returns "HH:MM"
+}
+
+// Helper function to parse date (you might need to adjust)
+function parseDate(dateString) { // e.g., "2025-04-23T00:00:00.000Z" or "2025-04-23"
+    const date = new Date(dateString);
+    return {
+        year: date.getFullYear(),
+        month: date.getMonth(), // 0-indexed (0 for January)
+        day: date.getDate()
+    };
+}
+
+async function handleVisitFormSubmit(event) {
+    event.preventDefault();
+
+    const visitForm = document.getElementById('visit-form');
+    const submitButton = visitForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
+
+    const getFieldValue = (id) => {
+        const element = document.getElementById(id);
+        return element ? element.value.trim() : null;
+    };
+    const statusValue = document.getElementById('visit-status').value; // Get status from form
+
+    const visitData = {
+        customer_id: getFieldValue('customerid'),
+        employee_id: getFieldValue('employeeid'), // Make sure this ID matches an actual employee ID for the backend to link
+        date: getFieldValue('visit-date'),
+        start_time: getFieldValue('starttime'),
+        end_time: getFieldValue('endtime'),
+        location: getFieldValue('company-location'), // Or a specific visit location field if you add one
+        purpose: getFieldValue('purpose'),
+        notes: statusValue === 'Completed' ? getFieldValue('completion-notes') : '', // Simplified notes logic
+        status: statusValue
+    };
+
+    if (!visitData.employee_id || !visitData.customer_id || !visitData.date || !visitData.start_time || !visitData.end_time || !visitData.location) {
+        alert('Please fill in all required visit details: Employee ID, Customer ID, Date, Start Time, End Time, and Location.');
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+        return;
+    }
+
+    console.log('Submitting Visit Data:', visitData);
+
+    try {
+        const response = await fetch('/api/visit', { // API endpoint from server.js
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(visitData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const newDetailedVisit = await response.json();
+        console.log('Visit saved successfully, response:', newDetailedVisit);
+        addEventToTimeline(newDetailedVisit); // Call the new function to update UI
+        closeModal(); // Close modal on success
+
+    } catch (error) {
+        console.error('Error submitting visit form:', error);
+        alert(`An error occurred while saving the visit: ${error.message}`);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+    }
+}
+
+function addEventToTimeline(detailedVisit) {
+    if (!detailedVisit || !detailedVisit.date || !detailedVisit.start_time || !detailedVisit.status) {
+        console.error('Invalid visit data for timeline update:', detailedVisit);
+        return;
+    }
+
+    const visitDateParts = parseDate(detailedVisit.date); // e.g. { year: 2025, month: 3, day: 23 } for April 23, 2025
+    const visitStartTime = formatTimeForDisplay(detailedVisit.start_time); // e.g., "09:00"
+    const visitStatus = detailedVisit.status.toLowerCase(); // e.g., "planned"
+
+    // --- Locating the target cell ---
+    const dayHeaders = document.querySelectorAll('.day-headers .day-header-cell');
+    const timeLabels = document.querySelectorAll('.time-grid .time-label');
+    const timeGrid = document.querySelector('.time-grid');
+    const dateRangeText = document.querySelector('.week-header .date-range').textContent; // e.g., "April 20 - 26, 2025"
+
+    let targetDayColumnIndex = -1; // 1-indexed based on dayHeaderCells (0 is empty)
+    const currentYearInView = parseInt(dateRangeText.match(/(\d{4})/)[0]);
+    const currentMonthNameInView = dateRangeText.match(/([A-Za-z]+)/)[0];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonthInView = monthNames.findIndex(m => m.toLowerCase() === currentMonthNameInView.toLowerCase());
+
+
+    if (visitDateParts.year !== currentYearInView || visitDateParts.month !== currentMonthInView) {
+        console.warn("Visit date is not in the currently displayed week's month/year. Event not added.");
+        return; // Or implement logic to switch week view
+    }
+
+    dayHeaders.forEach((header, index) => {
+        if (index === 0) return; // Skip the empty first cell
+        const dayNumberEl = header.querySelector('.day-number');
+        if (dayNumberEl && parseInt(dayNumberEl.textContent) === visitDateParts.day) {
+            targetDayColumnIndex = index;
+        }
+    });
+
+    if (targetDayColumnIndex === -1) {
+        console.warn("Visit date's day not found in current week view. Event not added.", visitDateParts);
+        return;
+    }
+
+    let targetRowIndex = -1;
+    timeLabels.forEach((label, index) => {
+        // Assuming timeLabel format is "X AM/PM" and visitStartTime is "HH:MM"
+        // This matching logic needs to be robust.
+        // Example: if label is "9 AM" and visitStartTime is "09:00"
+        const labelTime = label.textContent.trim().toUpperCase(); // "9 AM"
+        const visitHour = parseInt(visitStartTime.split(':')[0]); // 9
+
+        let labelHour;
+        if (labelTime.includes("AM")) {
+            labelHour = parseInt(labelTime.replace(" AM", ""));
+            if (labelHour === 12) labelHour = 0; // 12 AM is hour 0
+        } else if (labelTime.includes("PM")) {
+            labelHour = parseInt(labelTime.replace(" PM", ""));
+            if (labelHour !== 12) labelHour += 12; // 1 PM is 13, 12 PM is 12
+        }
+
+        if (visitHour === labelHour) {
+            targetRowIndex = index;
+        }
+    });
+
+    if (targetRowIndex === -1) {
+        console.warn("Visit start time slot not found in current week view. Event not added.", visitStartTime);
+        return;
+    }
+
+    // The actual cell index in the flat list of timeGrid children:
+    // Each row has 1 time-label + 7 day-cells = 8 children per row.
+    // The target cell is (targetDayColumnIndex)-th cell in the (targetRowIndex)-th row.
+    const targetCellIndex = targetRowIndex * 8 + targetDayColumnIndex;
+    const targetCell = timeGrid.children[targetCellIndex];
+
+    if (!targetCell || !targetCell.classList.contains('grid-cell')) {
+        console.error("Calculated target cell is not a valid grid-cell:", targetCell, "at index", targetCellIndex);
+        return;
+    }
+
+    // --- Create and append event element ---
+    const eventDiv = document.createElement('div');
+    eventDiv.classList.add('event', visitStatus); // e.g., 'event planned'
+    // Safely access nested properties for display
+    const employeeName = detailedVisit.Employee ? detailedVisit.Employee.name : 'N/A';
+    const customerName = detailedVisit.Customer ? detailedVisit.Customer.customer_name : 'N/A';
+
+    eventDiv.textContent = `Emp ${employeeName} - ${customerName} (${visitStartTime})`;
+    // You can add more details to eventDiv.innerHTML or set data attributes
+    eventDiv.setAttribute('data-visit-id', detailedVisit.visit_id);
+
+    // Clear previous events in the cell (optional, if you only want one event per slot visually for now)
+    // targetCell.innerHTML = '';
+    targetCell.appendChild(eventDiv);
+    console.log(`Event added to: Day Column Index ${targetDayColumnIndex}, Row Index ${targetRowIndex}`);
+}
+
+
+// Modify your DOMContentLoaded listener
+$(document).ready(function() { // Your original code uses jQuery's ready
+    const visitForm = document.getElementById('visit-form');
+    if (visitForm) {
+        visitForm.addEventListener('submit', handleVisitFormSubmit);
+    } else {
+        console.error("Visit form with ID 'visit-form' not found for submit listener.");
     }
 
     initializeCalendarDayListeners();
-    initializeGridCellListeners(); 
-    initializeMapFeature(); 
+    initializeGridCellListeners();
+
+    // Dynamic Calendar (Month View) - from your existing code
+    const monthYearEl = document.getElementById("month-year");
+    const calendarGridEl = document.querySelector(".calendar .calendar-grid"); // Target .calendar .calendar-grid
+    const prevBtn = document.getElementById("prev-month");
+    const nextBtn = document.getElementById("next-month");
+
+    if(monthYearEl && calendarGridEl && prevBtn && nextBtn) {
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+
+        function renderCalendar(month, year) {
+            if (!calendarGridEl) return;
+            calendarGridEl.innerHTML = ""; // Clear previous grid
+            daysOfWeek.forEach(day => {
+                const dayHeader = document.createElement("div");
+                dayHeader.textContent = day;
+                calendarGridEl.appendChild(dayHeader);
+            });
+
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                calendarGridEl.appendChild(document.createElement("div"));
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement("div");
+                dayCell.classList.add("day");
+                dayCell.textContent = day;
+
+                if (day === currentDate.getDate() && month === currentDate.getMonth() && year === currentDate.getFullYear()) {
+                    dayCell.classList.add("today");
+                }
+                // Re-attach click listener for new day cells if needed for form popup
+                 dayCell.addEventListener('click', function() {
+                    const dayNumberText = this.textContent;
+                    const monthYearText = monthYearEl.textContent; // "Month Year"
+                    const visitDateForForm = `${monthYearText} ${dayNumberText}`;
+                    // Assuming 9 AM as default, or extract from context
+                    formpopup(visitDateForForm, "9:00 AM");
+                });
+                calendarGridEl.appendChild(dayCell);
+            }
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYearEl.textContent = `${monthNames[month]} ${year}`;
+        }
+
+        prevBtn.addEventListener("click", () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+
+        nextBtn.addEventListener("click", () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+        renderCalendar(currentMonth, currentYear); // Initial render
+    } else {
+        console.warn("One or more calendar elements (month-year, calendar-grid, prev-month, next-month) not found.");
+    }
+    const visitStatusSelect = document.getElementById('visit-status');
+    const visitCompletedInput = document.getElementById('visits-completed');
+
+    if (visitStatusSelect && visitCompletedInput) { // From your existing code
+        visitStatusSelect.addEventListener('change', function() {
+            if (visitStatusSelect.value === 'Completed') {
+                visitCompletedInput.style.display = 'block';
+            } else {
+                visitCompletedInput.style.display = 'none';
+            }
+        });
+    }
 });
 
-// Window click listener for closing modals by clicking on the backdrop
-window.addEventListener('click', function(event) {
-    const visitModal = document.getElementById('visit-modal');
-    const mapModal = document.getElementById('map-modal'); 
+async function handleVisitFormSubmit(event) {
+    event.preventDefault(); // Prevent default page reload
 
-    if (visitModal && event.target === visitModal) { // Check if modal exists before comparing
-        closeModal(); 
-    }
-    if (mapModal && event.target === mapModal) { 
-        closeMapModal();
-    }
-});
-// Add this global variable near your other map variables (map, marker)
-let selectedLocationData = null; // Will store { address: '...', lat: ..., lon: ... }
+    const visitForm = document.getElementById('visit-form');
+    const submitButton = visitForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
 
-// (Keep your existing global variables: map, marker, selectedLatLng, currentUserRole)
-// (Keep your existing functions: getUserRole, initializeCalendarDayListeners, formpopup, closeModal, initializeGridCellListeners, DOMContentLoaded listener)
+    const getFieldValue = (id) => {
+        const element = document.getElementById(id);
+        return element ? element.value.trim() : null;
+    };
+    const statusValue = document.getElementById('visit-status').value;
 
-// --- NEW/MODIFIED MAP MODAL CODE ---
-
-// New function to perform reverse geocoding
-async function reverseGeocodeAndDisplay(latlng) {
-    const addressTextElement = document.getElementById('selected-map-address-text');
-    const confirmButton = document.getElementById('confirm-location-btn');
-
-    if (!addressTextElement) {
-        console.error("selected-map-address-text element not found");
+    const visitData = {
+        customer_id: getFieldValue('customerid'),
+        employee_id: getFieldValue('employeeid'),
+        date: getFieldValue('visit-date'),
+        start_time: getFieldValue('starttime'),
+        end_time: getFieldValue('endtime'),
+        location: getFieldValue('company-location'), // Ensure this ID is correct for visit location
+        purpose: getFieldValue('purpose'),
+        notes: statusValue === 'Completed' ? getFieldValue('completion-notes') : '',
+        status: statusValue
+    };
+    if (!visitData.employee_id || !visitData.customer_id || !visitData.date || !visitData.start_time || !visitData.end_time || !visitData.location) {
+        alert('Please fill in all required visit details: Employee ID, Customer ID, Date, Start Time, End Time, and Location.');
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
         return;
     }
 
-    addressTextElement.textContent = 'Fetching address...';
-    addressTextElement.style.fontStyle = 'italic';
-    addressTextElement.style.color = '#555';
-    if (confirmButton) confirmButton.disabled = true; // Disable confirm button while fetching
-
-    selectedLocationData = null; // Reset previous selection data
-
-    // Nominatim API endpoint for reverse geocoding
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latlng.lat}&lon=${latlng.lng}&accept-language=en`;
+    console.log('Submitting Visit Data:', visitData);
 
     try {
-        const response = await fetch(url, {
+        const response = await fetch('/api/visit', {
+            method: 'POST',
             headers: {
-                'User-Agent': 'SalesVisitPlannerApp/1.0 (your-email@example.com)' // Replace with your app name and contact
-            }
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(visitData),
         });
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Nominatim API request failed: ${response.status} ${response.statusText} - ${errorData.error?.message || ''}`);
-        }
-        const data = await response.json();
+            // Attempt to parse the error response from the server
+            const errorDataFromServer = await response.json().catch(() => ({
+                error: "Failed to parse error response from server",
+                details: "Server returned an error status without a JSON body or with malformed JSON."
+            }));
 
-        if (data && data.display_name) {
-            addressTextElement.textContent = data.display_name;
-            addressTextElement.style.fontStyle = 'normal';
-            addressTextElement.style.color = '#000';
-            selectedLocationData = {
-                address: data.display_name,
-                lat: latlng.lat,
-                lon: latlng.lng // Corrected from lng to lon for consistency if needed
-            };
-            console.log("Geocoded Address:", selectedLocationData.address);
-            if (confirmButton) confirmButton.disabled = false; // Enable confirm button
-        } else {
-            addressTextElement.textContent = 'Address not found. Try another location or enter manually.';
-            console.warn("Reverse geocoding did not return a display_name:", data);
+            // Log the detailed error data from the server to the browser console
+            console.error('Server error response data (from /api/visit in browser console):', errorDataFromServer);
+            
+            // errorDataFromServer should be an object like: { error: 'Failed to save visit', details: 'THE ACTUAL SERVER ERROR MESSAGE' }
+            let detailedMessage = errorDataFromServer.details || errorDataFromServer.error || `Server responded with ${response.status}`;
+            
+            alert(`Failed to save visit: ${detailedMessage}`);
+            throw new Error(detailedMessage); // Throw the more detailed message
         }
+
+        const newDetailedVisit = await response.json();
+        console.log('Visit saved successfully, response:', newDetailedVisit);
+        if (typeof addEventToTimeline === 'function') { // Check if function exists before calling
+            addEventToTimeline(newDetailedVisit);
+        }
+        if (typeof closeModal === 'function') { // Check if function exists
+            closeModal();
+        }
+
     } catch (error) {
-        console.error('Error during reverse geocoding:', error);
-        addressTextElement.textContent = 'Could not fetch address. Please try again or enter manually.';
-        // Optionally, log the error message to the user display for more info if it's a network error.
-        if (error.message.includes('Failed to fetch')) {
-             addressTextElement.textContent += ' (Network error or service unavailable)';
-        }
+        console.error('Overall error submitting visit form (browser console):', error.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
     }
-}
-
-
-function initializeMapFeature() {
-    const mapLocationLink = document.getElementById('maplocation');
-    if (mapLocationLink) {
-        mapLocationLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            openMapModal();
-        });
-    } else {
-        console.warn("Element with ID 'maplocation' (Choose on map link) not found.");
-    }
-
-    const confirmLocationButton = document.getElementById('confirm-location-btn');
-    if (confirmLocationButton) {
-        confirmLocationButton.addEventListener('click', function() {
-            console.log("Confirm button clicked. Current selectedLocationData:", selectedLocationData); 
-            if (selectedLocationData && selectedLocationData.address) { // Check for the address
-                const locationInput = document.getElementById('visit-location');
-                if (locationInput) {
-                    locationInput.value = selectedLocationData.address; // Use the fetched address
-                } else {
-                    console.error("Visit location input field not found!");
-                }
-                closeMapModal();
-            } else {
-                alert("Please select a location on the map and wait for the address to appear.");
-            }
-        });
-    } else {
-        console.warn("Element with ID 'confirm-location-btn' not found.");
-    }
-}
-
-function openMapModal() {
-    if (map && marker) { 
-        try {
-            map.removeLayer(marker);
-        } catch (e) {
-            console.warn("Could not remove previous marker:", e);
-        }
-        marker = null;
-    }
-    selectedLocationData = null; // Reset selected location data
-
-    // Reset the address display text
-    const addressTextElement = document.getElementById('selected-map-address-text');
-    if (addressTextElement) {
-        addressTextElement.textContent = 'Click on the map to select a location.';
-        addressTextElement.style.fontStyle = 'italic';
-        addressTextElement.style.color = '#555';
-    }
-    const confirmButton = document.getElementById('confirm-location-btn');
-    if (confirmButton) confirmButton.disabled = true; // Initially disable confirm button
-
-
-    const modal = document.getElementById('map-modal');
-    if (!modal) {
-        console.error("Map modal element with ID 'map-modal' not found!");
-        return;
-    }
-
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.add('blur-background');
-    }
-    modal.style.display = 'flex';
-
-    if (!map) { 
-        try {
-            map = L.map('map-container').setView([20.5937, 78.9629], 5); 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            map.on('click', function(e) {
-                const clickedLatLng = e.latlng; 
-                // Update marker position
-                if (marker) { 
-                    marker.setLatLng(clickedLatLng);
-                } else { 
-                    marker = L.marker(clickedLatLng).addTo(map);
-                }
-                // Perform reverse geocoding
-                reverseGeocodeAndDisplay(clickedLatLng); 
-            });
-        } catch (e) {
-            console.error("Error initializing Leaflet map:", e);
-            if(addressTextElement) addressTextElement.textContent = "Map initialization failed.";
-            // alert("Could not initialize the map. Please ensure you are connected to the internet and try again.");
-        }
-    } else {
-        try { 
-            map.invalidateSize();
-        } catch (e) {
-            console.warn("Error invalidating map size:", e);
-        }
-    }
-}
-
-function closeMapModal() {
-    const modal = document.getElementById('map-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.remove('blur-background');
-    }
-    // Optionally reset the address text and button state if modal is closed without confirming
-    const addressTextElement = document.getElementById('selected-map-address-text');
-    if (addressTextElement) {
-        addressTextElement.textContent = 'Click on the map to select a location.';
-        addressTextElement.style.fontStyle = 'italic';
-        addressTextElement.style.color = '#555';
-    }
-    const confirmButton = document.getElementById('confirm-location-btn');
-    if (confirmButton) confirmButton.disabled = true;
 }

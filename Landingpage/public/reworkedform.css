@@ -174,3 +174,7 @@
   option[value=""][disabled]{
     display: none;
   }
+
+  #manager_id{
+    width: 370px;
+  }

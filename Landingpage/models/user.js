@@ -3,7 +3,6 @@ module.exports = (sequelize, DataTypes) => {
     employee_id: {
       type: DataTypes.STRING(100),
       primaryKey: true,
-      autoIncrement: true,
     },
     name: {
       type: DataTypes.STRING(100),
@@ -26,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     manager_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(100),
       allowNull: true,
     },
   }, {

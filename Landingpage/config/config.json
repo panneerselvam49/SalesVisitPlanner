@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "Paneer@123",
+    "database": "salesvisitplanner",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "Paneer@123",
+    "database": "salesvisitplanner_test", 
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "your_production_username", 
+    "password": "your_production_password", 
+    "database": "your_production_database", 
+    "host": "your_production_host",         
+    "dialect": "postgres"
+  }
+}

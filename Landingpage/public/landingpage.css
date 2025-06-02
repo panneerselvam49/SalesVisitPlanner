@@ -57,6 +57,7 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
   flex: 1;
   width: 250px;
+  height:600px;
 }
 
 .calendar-grid {
@@ -444,26 +445,6 @@ span.angelbrackets {
   font-weight: 600;
 }
 
-.close-btn {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #777;
-  cursor: pointer;
-  transition: color 0.2s, transform 0.2s;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.close-btn:hover {
-  color: #e53935;
-  background-color: #f8f8f8;
-  transform: rotate(90deg);
-}
-
 #visit-form {
   padding: 20px;
 }
@@ -499,6 +480,9 @@ label {
 
 input[type="text"],
 input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
 select,
 textarea {
   width: 100%;
@@ -512,6 +496,9 @@ textarea {
 
 input[type="text"]:focus,
 input[type="password"]:focus,
+input[type="time"]:focus,
+input[type="number"]:focus,
+
 select:focus,
 textarea:focus {
   border-color: #039be5;
@@ -603,4 +590,8 @@ textarea:focus {
   text-decoration: none;
   color: black;
   border-bottom: 1px solid black;
+}
+
+#prev-month{
+  font-weight: bolder;
 }

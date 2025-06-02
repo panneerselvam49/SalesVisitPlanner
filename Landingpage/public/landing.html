@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="shortcut icon" href="../Landingpage/ktt_logo.jpg" type="image/x-icon"> <title>Sales Visit Planner</title>
+    <link rel="shortcut icon" href="./images/ktt_logo.jpg" type="image/x-icon"> <title>Sales Visit Planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -24,10 +24,10 @@
 
         <div class="calendar">
             <div class="calendar-header">
-                <h2 style="display: inline-block; margin-left: 0%;">April 2025</h2>
+                <h2 id="month-year" style="display: inline-block; margin-left: 0%;"></h2>
                 <span class="angelbrackets">
-                    <span>&lt;</span>
-                    <span>&gt;</span>
+                <span id="prev-month">&lt;</span>
+                <span id="next-month">&gt;</span>
                 </span>
             </div>
             <div class="calendar-grid">
@@ -119,10 +119,7 @@
 
     <div id="visit-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="submit">Schedule Visit</button>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
-            </div>
+            
             
             <form id="visit-form">
                 <div class="form-section">
@@ -130,15 +127,15 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="employeeid">Company ID</label>
-                            <input type="text" id="employeeid" placeholder="Enter Company ID">
+                            <label for="companyid">Company ID</label>
+                            <input type="text" id="companyid" placeholder="Enter Company ID">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="company-id">Company ID</label>
-                            <input type="text" id="company-id" placeholder="Enter Company ID">
+                            <label for="companyname">Company Name</label>
+                            <input type="text" id="companyname" placeholder="Enter Company Name">
                         </div>
                     </div>
 
@@ -159,7 +156,7 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="customer name">Company ID</label>
+                            <label for="customer name">Customer Name</label>
                             <input type="text" id="customer name" placeholder="Customer Name">
                         </div>
                     </div>
@@ -197,7 +194,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="customerid">Customer ID</label>
-                            <input type="text" id="customerid" placeholder="Customer ID">
+                            <input type="number" id="customerid" placeholder="Customer ID">
                         </div>
                     </div>
 
@@ -232,18 +229,6 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="Description">Description</label>
-                            <input type="text" id="Description" placeholder="Customer Name">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <a href="#" id="maplocation">Choose on the map</a> <label for="visit-location">Location:</label>
-                        <input type="text" id="visit-location" placeholder="Enter meeting location or select on map" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
                             <label for="visit-status">Visit Status:</label>
                             <select id="visit-status" name="visitStatus">
                                 <option value="Planned" selected>Planned</option>
@@ -272,16 +257,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <h2>Choose Location on Map</h2>
-          <span class="close-btn" onclick="closeMapModal()">&times;</span>
+          
         </div>
-        <div id="map-container" style="height: 400px; width: 100%; margin-bottom:15px;"></div>
         <div style="text-align: center; padding: 0px 20px 20px 20px;">
             <button id="confirm-location-btn" class="save-btn" style="width:100%;">Confirm Location</button>
         </div>
       </div>
     </div>
-
-    <script src="./reworkform.js"></script> <script src="landingpage.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="./landingpage.js"></script>
 </body>
 </html>

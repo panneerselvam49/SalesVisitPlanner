@@ -10,14 +10,14 @@
 <body>
   <div class="master">
     <div class="clogo">
-      <img src="./ktt_logo.jpg" width="100px" height="100px" alt="Company logo" title="KT Telematic solution">
+      <img src="./images/ktt_logo.jpg" width="100px" height="100px" alt="Company logo" title="KT Telematic solution">
     </div>
     
     <form id="userForm">
       <div class="inputs">
         <div class="input-container">
           <label for="empid">Employee ID</label>
-          <input type="number" id="empid" placeholder="Enter your ID" maxlength="50" minlength="3" required>
+          <input type="text" id="empid" placeholder="Enter your ID" maxlength="50" minlength="3" required>
         </div>
         <div class="input-container">
           <label for="name">Name</label>
@@ -35,16 +35,16 @@
         </div>
         <div class="input-container-role">
           <label for="role">Role</label><br>
-          <select name="role" id="role" required>
-            <option value="" disabled selected>Select the field here</option>
-            <option value="Manager">Manager</option>
-            <option value="Employee">Employee</option>
+          <select id="role" name="role">
+          <option value="Manager">Manager</option>
+          <option value="Employee">Employee</option>
           </select>
         </div>
-        <div class="input-container-manager">
-          <label for="manager-id">Manager ID</label><br>
-          <input type="number" id="manager-id" placeholder="Enter your manager ID">
+        <div class="input-container" id="managerField" style="display: none;">
+        <label for="manager_id">Manager ID</label><br>
+        <input type="text" id="manager_id" name="manager_id" placeholder="Enter manager id if you are an employee">
         </div>
+
         <div class="login">
           <button type="submit">Login</button>
         </div>
@@ -52,7 +52,7 @@
     </form>
   </div>
 
-  <!-- Move script here so everything above is loaded first -->
-  <script src="reworkform.js"></script>
+  <script src="./reworkform.js"></script>
+
 </body>
 </html>
