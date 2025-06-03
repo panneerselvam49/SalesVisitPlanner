@@ -595,3 +595,13 @@ textarea:focus {
 #prev-month{
   font-weight: bolder;
 }
+
+#custom-view{
+  margin-left: 100px;
+  width: 100px;
+}
+
+#custom-view select{
+  border-radius: 10px;
+  padding: 10px;
+}

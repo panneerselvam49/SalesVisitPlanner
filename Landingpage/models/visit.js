@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
   status: {
   type: DataTypes.ENUM('Planned', 'Completed', 'Cancelled', 'Pending', 'In-Progress'),
   allowNull: false,
-  defaultValue: 'Planned', // Default to 'Planned' when a new visit is created
+  defaultValue: 'Planned',
   },
   }, {
     timestamps: false,

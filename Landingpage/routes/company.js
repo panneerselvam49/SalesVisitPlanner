@@ -1,8 +1,6 @@
   const express = require('express');
   const router = express.Router();
-  const { Company } = require('../models'); // Adjust path if your models folder is elsewhere
-
-  // POST /api/companies - Create a new company
+  const { Company } = require('../models'); 
   router.post('/', async (req, res) => {
     try {
       const { company_name, location, companyid } = req.body;

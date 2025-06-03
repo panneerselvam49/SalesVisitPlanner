@@ -47,10 +47,9 @@ document.addEventListener('DOMContentLoaded', function () {
         email,
         password,
         role,
-        manager_id // This will now be null if role is 'Manager' and the field was cleared
+        manager_id
       })
     })
-    // ... (the .then and .catch blocks you added for debugging are fine)
     .then(async response => { 
       if (!response.ok) {
         const errorDataFromServer = await response.json().catch(() => {

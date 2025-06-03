@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { Sequelize, DataTypes } = require('sequelize');
-
-// Create Sequelize instance
 const sequelize = new Sequelize('salesvisitplanner', 'postgres', 'Paneer@123', {
   host: '127.0.0.1',
   dialect: 'postgres',
@@ -12,7 +10,6 @@ const sequelize = new Sequelize('salesvisitplanner', 'postgres', 'Paneer@123', {
 const db = {};
 const basename = path.basename(__filename);
 
-// Read all model files from current folder (except index.js)
 fs.readdirSync(__dirname)
   .filter(file => file !== basename && file.endsWith('.js'))
   .forEach(file => {
@@ -20,7 +17,6 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-// Setup associations (if any)
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
