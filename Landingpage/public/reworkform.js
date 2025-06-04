@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
   const roleSelect = document.getElementById('role');
   const managerIdContainer = document.getElementById('managerField');
-  const managerIdInput = document.getElementById('manager_id'); // Get the input field itself
+  const managerIdInput = document.getElementById('manager_id');
   const form = document.getElementById('userForm');
 
-  if (!roleSelect || !managerIdContainer || !form || !managerIdInput) { // Added managerIdInput to check
-    console.error('Critical form elements not found in the DOM.');
+  if (!roleSelect || !managerIdContainer || !form || !managerIdInput) {
+    console.error('Critical form elements not found in the DOM for reworkform.js.');
     return;
   }
 
@@ -14,29 +14,30 @@ document.addEventListener('DOMContentLoaded', function () {
       managerIdContainer.style.display = 'block';
     } else {
       managerIdContainer.style.display = 'none';
-      managerIdInput.value = ''; // <<< ---- ADD THIS LINE TO CLEAR THE INPUT
+      managerIdInput.value = '';
     }
   }
-
-  // Initialize visibility and add event listener
   toggleManagerIdVisibility();
   roleSelect.addEventListener('change', toggleManagerIdVisibility);
 
-  form.addEventListener('submit', function loginUser(event) {
+  form.addEventListener('submit', function handleRegistration(event) {
     event.preventDefault();
-
     const employee_id = document.getElementById('empid').value;
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('psw').value;
     const role = document.getElementById('role').value;
-    
-    // This line will now correctly get an empty string if role is 'Manager' (due to the fix above),
-    // which will then be converted to null by `|| null`.
     const manager_id = document.getElementById('manager_id').value || null;
+    if (!employee_id || !name || !email || !password || !role) {
+        alert('Please fill in all required fields: Employee ID, Name, Email, Password, and Role.');
+        return;
+    }
+    if (role === 'Employee' && !manager_id) {
+        alert('Manager ID is required for employees.');
+        return;
+    }
 
-    // ... rest of your fetch call
-    fetch('http://localhost:3000/api/auth/register', {
+    fetch('http://localhost:3000/api/auth/register', { // This is a registration endpoint
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -50,20 +51,23 @@ document.addEventListener('DOMContentLoaded', function () {
         manager_id
       })
     })
-    .then(async response => { 
+    .then(async response => {
+      const responseBody = await response.json().catch(() => ({
+         error: "Failed to parse server response.",
+         details: `Server responded with status: ${response.status} ${response.statusText} and non-JSON body.`
+      }));
+
       if (!response.ok) {
-        const errorDataFromServer = await response.json().catch(() => {
-          return { error: "Failed to parse error response from server.", status: response.status, statusText: response.statusText };
-        });
-        console.error('Server error response data (in browser console):', errorDataFromServer);
-        alert(`Failed to register user: ${errorDataFromServer.messageFromServer || errorDataFromServer.error || response.statusText}`);
-        throw new Error(errorDataFromServer.messageFromServer || `Server responded with ${response.status}`);
+        console.error('Server error response data (from /api/auth/register):', responseBody);
+        alert(`Failed to register user: ${responseBody.messageFromServer || responseBody.error || responseBody.details || response.statusText}`);
+        throw new Error(responseBody.messageFromServer || responseBody.error || `Server responded with ${response.status}`);
       }
-      return response.json();
+      return responseBody; 
     })
     .then(data => {
-      alert('User registered successfully!');
+      alert('User registered successfully and logged in!'); 
       console.log('Registration successful (in browser console):', data);
+      window.location.href = '/landing';
     })
     .catch(error => {
       console.error('Overall registration error (in browser console):', error.message);

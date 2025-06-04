@@ -21,19 +21,89 @@ router.post('/register', async (req, res) => {
       email,
       password: hashedPassword,
       role,
-      manager_id: manager_id || null 
+      manager_id: manager_id || null
     });
 
-    res.status(201).json(newUser);
+    if (req.session) {
+        req.session.userId = newUser.employee_id; 
+        req.session.role = newUser.role; 
+        console.log('Session created for userId:', req.session.userId);
+    } else {
+        console.error("Session middleware not properly configured or req.session is undefined.");
+    }
+
+    res.status(201).json({
+        message: "User registered successfully and logged in.",
+        user: { 
+            employee_id: newUser.employee_id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role
+        }
+    });
   } catch (error) {
-    console.error("Detailed error in /api/auth/register:", error); 
+    console.error("Detailed error in /api/auth/register:", error);
     res.status(500).json({
       error: 'Failed to register user. See details in console.',
-      messageFromServer: error.message, 
-      errorName: error.name,        
-      errorFields: error.fields,   
-      errorDetails: error.errors  
+      messageFromServer: error.message,
+      errorName: error.name,
+      errorFields: error.fields,
+      errorDetails: error.errors
     });
   }
 });
+
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required.' });
+        }
+        const user = await User.findOne({ where: { email: email } });
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials.' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid credentials.' });
+        }
+        if (req.session) {
+            req.session.userId = user.employee_id;
+            req.session.role = user.role;
+            console.log('Session created for userId (login):', req.session.userId);
+            res.status(200).json({
+                message: "Logged in successfully.",
+                user: {
+                    employee_id: user.employee_id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                }
+            });
+        } else {
+             console.error("Session middleware not properly configured or req.session is undefined during login.");
+             return res.status(500).json({ error: "Login succeeded but session could not be established." });
+        }
+
+    } catch (error) {
+        console.error("Error in /api/auth/login:", error);
+        res.status(500).json({ error: 'Login failed.' });
+    }
+});
+
+router.post('/logout', (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                return res.status(500).json({ message: 'Could not log out, please try again.' });
+            }
+            res.clearCookie('connect.sid'); 
+            return res.status(200).json({ message: 'Logged out successfully.' });
+        });
+    } else {
+        return res.status(200).json({ message: 'No session to destroy.' });
+    }
+});
+
+
 module.exports = router;

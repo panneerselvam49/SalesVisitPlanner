@@ -6,27 +6,54 @@ const authtrout = require('./routes/auth');
 const company = require('./routes/company');
 const customer = require('./routes/customer');
 const visit = require('./routes/visit');
+const session = require('express-session');
 
 const app = express();
+app.use(session({
+    secret: 'your-very-secure-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000
+    }
+}));
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/api/auth', authtrout); 
-app.use('/api/company', company);
-app.use('/api/customer', customer); 
-app.use('/api/visit', visit); 
 
+function isAuthenticated(req, res, next) {
+    if (req.session && req.session.userId) {
+        return next();
+    }
+    res.status(401).redirect('/');
+  }
+app.get('/landing.html', isAuthenticated, (req, res) => {
+  res.redirect('/landing');
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api/auth', authtrout);
+app.use('/api/company', isAuthenticated, company);
+app.use('/api/customer', isAuthenticated, customer);
+app.use('/api/visit', isAuthenticated, visit);
 app.get('/', (req, res) => {
+  if (req.session && req.session.userId) {
+    return res.redirect('/landing');
+  }
   res.sendFile(path.join(__dirname, 'public', 'reworkedform.html'));
 });
 
-app.get('/landing',(req,res)=>{
+app.get('/landing', isAuthenticated, (req, res) => {
  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
 
-db.sequelize.sync().then(() => { 
+db.sequelize.sync().then(() => {
   console.log('Database synced');
   app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');

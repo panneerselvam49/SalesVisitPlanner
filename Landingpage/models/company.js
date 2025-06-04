@@ -1,16 +1,17 @@
 module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
     company_name: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      unique: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
     },
-    location: {
-      type: DataTypes.STRING(150),
-      allowNull: true,
+    location:{
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   }, {
     timestamps: true,
   });
+
   return Company;
-}
+};

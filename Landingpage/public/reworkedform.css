@@ -99,6 +99,7 @@
     transform: scale(1.05);
     box-shadow: 3px 4px 4px rgba(0, 0, 0, 0.4);
     color: white;
+    background-color: skyblue;
   }
   
   .clogo {
@@ -143,7 +144,7 @@
     border: outset none;
     border: 1px solid #1976d2;
     font-size: medium;
-    background-color: #2196f3;
+    background-color: linear-gradient(135deg, #dbe9f4, #eef5ff);;
   }
 
   #role{
@@ -177,4 +178,8 @@
 
   #manager_id{
     width: 370px;
+  }
+
+  #loginbtn{
+    cursor: pointer;
   }

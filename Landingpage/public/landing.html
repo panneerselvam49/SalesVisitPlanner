@@ -130,12 +130,10 @@
             
             <form id="visit-form">
                 <div class="form-section">
-                    <h3>Company Details</h3>
-
+                    <img src="./images/close_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="Close Button" id="closeModal" onclick="closeform()">
                     <div class="form-row">
                         <div class="form-group">
-                            <select name="" id="companydetails">
-                                <option value=""></option>
+                            <select name="" id="companydetails" required>
                                 <option value=""></option>
                             </select>
                         </div>
@@ -158,9 +156,14 @@
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="customer-selected-company">Associated Company</label>
+                            <input type="text" id="customer-selected-company" placeholder="Company selected above" readonly style="background-color: #e9ecef; cursor: default;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="contact-details">Contact Details</label>
                             <input type="text" id="contact-details" placeholder="Enter contact details">
-
                         </div>
                     </div>
 
@@ -171,39 +174,46 @@
                         </div>
                     </div>
 
-                    <h3>Visits</h3>
+                    <h3>Visits Details</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employeeid">Employee ID</label>
-                            <input type="text" id="employeeid" placeholder="Employee ID">
+                            <input type="text" id="employeeid" placeholder="Employee ID" required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="customerid">Customer ID</label>
-                            <input type="number" id="customerid" placeholder="Customer ID">
+                            <input type="number" id="customerid" placeholder="Customer ID" required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="visit-date">Visit Date</label>
-                            <input type="date" id="visit-date" placeholder="Visit Date">
+                            <input type="date" id="visit-date" placeholder="Visit Date" required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="starttime">Visit start time</label>
-                            <input type="time" id="starttime" placeholder="Visit start time">
+                            <input type="time" id="starttime" placeholder="Visit start time" required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="endtime">Visit end time</label>
-                            <input type="time" id="endtime" placeholder="Visit end time">
+                            <input type="time" id="endtime" placeholder="Visit end time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="visit-location">Location</label>
+                            <input type="text" id="visit-location" placeholder="Visit location" required>
                         </div>
                     </div>
 
@@ -211,14 +221,14 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="purpose">Visit Purpose</label>
-                            <input type="text" id="purpose" placeholder="Visit purpose">
+                            <input type="text" id="purpose" placeholder="Visit purpose" required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="visit-status">Visit Status:</label>
-                            <select id="visit-status" name="visitStatus">
+                            <select id="visit-status" name="visitStatus" required>
                                 <option value="Planned" selected>Planned</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
@@ -234,25 +244,12 @@
                     </div>
                     </div>
                  <div style="text-align: right; padding: 15px 20px; border-top: 1px solid #eee;">
-                    <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="cancel-btn" onclick="closeform()">Cancel</button>
                     <button type="submit" class="save-btn" style="margin-left: 10px;">Save Visit</button>
                 </div>
             </form>
         </div>
     </div>
-
-    <div id="map-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Choose Location on Map</h2>
-          
-        </div>
-        <div style="text-align: center; padding: 0px 20px 20px 20px;">
-            <button id="confirm-location-btn" class="save-btn" style="width:100%;">Confirm Location</button>
-        </div>
-      </div>
-    </div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="./landingpage.js"></script>
 </body>
 </html>

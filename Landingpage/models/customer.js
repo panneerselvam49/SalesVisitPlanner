@@ -17,9 +17,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),
       allowNull: true,
     },
+    companyName: { 
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      references: {
+        model: 'Companies', 
+        key: 'company_name', 
+      }
+    },
   }, {
+    tableName: 'Customers',
     timestamps: true,
   });
+
+  Customer.associate = (models) => {
+    Customer.belongsTo(models.Company, {
+      foreignKey: 'companyName', 
+      targetKey: 'company_name', 
+      as: 'Company'        
+    });
+  };
 
   return Customer;
 };

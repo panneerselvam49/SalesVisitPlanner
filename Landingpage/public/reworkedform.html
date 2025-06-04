@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
   <link rel="stylesheet" href="reworkedform.css">
-  <link rel="shortcut icon" href="./ktt_logo.jpg" type="image/x-icon">
+  <link rel="shortcut icon" href="./images/ktt_logo.jpg"type="image/x-icon">
 </head>
 <body>
   <div class="master">
     <div class="clogo">
-      <img src="./images/ktt_logo.jpg" width="100px" height="100px" alt="Company logo" title="KT Telematic solution">
+      <img src="./images/ktt_logo.jpg" width="100px" height="100px" alt="Company logo" title="KT Telematic solution" onclick="closeModal()">
     </div>
     
     <form id="userForm">
@@ -42,11 +42,11 @@
         </div>
         <div class="input-container" id="managerField" style="display: none;">
         <label for="manager_id">Manager ID</label><br>
-        <input type="datetime" id="manager_id" name="manager_id" placeholder="Enter manager id if you are an employee">
+        <input type="text" id="manager_id" placeholder="Enter manager id if you are an employee">
         </div>
 
         <div class="login">
-          <button type="submit">Login</button>
+          <button type="submit" id="loginbtn">Login</button>
         </div>
       </div>
     </form>

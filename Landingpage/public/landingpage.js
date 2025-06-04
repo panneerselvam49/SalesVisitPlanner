@@ -26,12 +26,12 @@ async function fetchAndPopulateCompanyDropdown() {
     }
 
     try {
-        const response = await fetch('/api/company');
+        const response = await fetch('/api/company'); 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`); 
         }
-        const companies = await response.json();
-        companyDetailsSelect.innerHTML = ''; 
+        const companies = await response.json(); 
+        companyDetailsSelect.innerHTML = '';
 
         const placeholderOption = document.createElement('option');
         placeholderOption.value = "";
@@ -40,12 +40,18 @@ async function fetchAndPopulateCompanyDropdown() {
 
         companies.forEach(company => {
             const option = document.createElement('option');
-            option.value = company.companyid;
-            option.textContent = company.company_name;
+            option.value = company.company_name; // Value is the company_name (PK)
+            
+            let displayText = company.company_name;
+            if (company.location) { // Check if location exists
+                displayText += ` - ${company.location}`;
+            }
+            option.textContent = displayText;
+            
             companyDetailsSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error fetching or populating company dropdown:', error);
+        console.error('Error fetching or populating company dropdown:', error); //
         companyDetailsSelect.innerHTML = '<option value="">Error loading companies</option>';
     }
 }
@@ -63,12 +69,10 @@ function formpopup(cellDate, cellTime) {
     }
 
     const visitDateInput = document.getElementById('visit-date');
-    // const visitTimeInput = document.getElementById('visit-time'); // ID 'visit-time' is not in your HTML, form has 'starttime'
     const visitStartTimeInput = document.getElementById('starttime');
 
 
     if (cellDate && visitDateInput) {
-        // Convert "Month Day, Year" or "Month Year Day" to "YYYY-MM-DD" for date input
         try {
             const parsedDate = new Date(cellDate);
             const year = parsedDate.getFullYear();
@@ -77,75 +81,42 @@ function formpopup(cellDate, cellTime) {
             visitDateInput.value = `${year}-${month}-${day}`;
         } catch (e) {
             console.error("Error parsing cellDate for form popup:", cellDate, e);
-            visitDateInput.value = cellDate; // Fallback
+            visitDateInput.value = cellDate;
         }
     }
     if (cellTime && visitStartTimeInput) {
         try {
             let [time, modifier] = cellTime.split(' ');
             let [hours, minutes] = time.split(':');
-            if (!minutes) minutes = '00'; // Default to :00 if not specified
+            if (!minutes) minutes = '00'; 
 
             hours = parseInt(hours);
 
             if (modifier && modifier.toUpperCase() === 'PM' && hours < 12) {
                 hours += 12;
             }
-            if (modifier && modifier.toUpperCase() === 'AM' && hours === 12) { // Midnight case
+            if (modifier && modifier.toUpperCase() === 'AM' && hours === 12) { 
                 hours = 0;
             }
             
             visitStartTimeInput.value = `${hours.toString().padStart(2, '0')}:${minutes}`;
         } catch(e) {
             console.error("Error parsing cellTime for form popup:", cellTime, e);
-            visitStartTimeInput.value = cellTime; // Fallback
+            visitStartTimeInput.value = cellTime; 
         }
     }
     modal.style.display = 'flex';
 }
 
-function closeModal() {
-    const modal = document.getElementById('visit-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    } else {
-        console.error('In closeModal: Element with ID "visit-modal" not found.');
-    }
-
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.remove('blur-background');
-    }
-    const visitForm = document.getElementById('visit-form');
-    if (visitForm) {
-        visitForm.reset();
-        document.getElementById('companydetails').value = ""; // Reset company dropdown
-
-        const statusSelect = document.getElementById('visit-status');
-        if (statusSelect) statusSelect.value = 'Planned';
-
-        const visitCompletedInput = document.getElementById('visits-completed');
-        if (visitCompletedInput) {
-            visitCompletedInput.style.display = 'none';
-        }
-    } else {
-        console.error('In closeModal: Element with ID "visit-form" not found.');
-    }
-}
-
 function initializeCalendarDayListeners(monthYearElRef, renderCalendarFunc) {
     const calendarGridEl = document.querySelector(".calendar .calendar-grid");
-    const oldDays = calendarGridEl.querySelectorAll('.day');
-    oldDays.forEach(day => {
-    });
-
-    const calendarDays = calendarGridEl.querySelectorAll('.day'); // Re-query after potential render
+    const calendarDays = calendarGridEl.querySelectorAll('.day');
     calendarDays.forEach(day => {
         day.addEventListener('click', function() {
             const dayNumber = this.textContent;
-            const monthYearText = monthYearElRef.textContent; // Use the reference
+            const monthYearText = monthYearElRef.textContent; 
             const visitDateForForm = `${monthYearText} ${dayNumber}`;
-            formpopup(visitDateForForm, "09:00"); // Use HH:mm format
+            formpopup(visitDateForForm, "09:00"); 
         });
     });
 }
@@ -167,11 +138,11 @@ function initializeGridCellListeners() {
             if (columnIndex === 0) return;
 
             const dayHeaderCells = document.querySelectorAll('.day-header-cell');
-            if (columnIndex <= 0 || columnIndex >= dayHeaderCells.length) { // Adjusted condition
+            if (columnIndex <= 0 || columnIndex >= dayHeaderCells.length) { 
                 console.error('Error in initializeGridCellListeners: columnIndex invalid.');
                 return;
             }
-            const dayHeader = dayHeaderCells[columnIndex]; // dayHeaderCells is 1-indexed effectively due to the first empty cell in markup
+            const dayHeader = dayHeaderCells[columnIndex]; 
             const dayNumberElement = dayHeader.querySelector('.day-number');
             if (!dayNumberElement) {
                 console.error('Error: .day-number element not found.');
@@ -186,8 +157,8 @@ function initializeGridCellListeners() {
             const dateRangeText = dateRangeTextElement.textContent;
             const monthMatch = dateRangeText.match(/([A-Za-z]+)\s\d+\s*(-|,)/);
             const yearMatch = dateRangeText.match(/,\s*(\d{4})/);
-            const month = monthMatch ? monthMatch[1] : "April"; // Fallback, consider making this more robust
-            const year = yearMatch ? yearMatch[1] : new Date().getFullYear().toString(); // Fallback
+            const month = monthMatch ? monthMatch[1] : "April"; 
+            const year = yearMatch ? yearMatch[1] : new Date().getFullYear().toString(); 
 
             const visitDate = `${month} ${dayNumber}, ${year}`;
             const rowIndex = Math.floor(index / 8);
@@ -217,20 +188,18 @@ async function handleVisitFormSubmit(event) {
     const statusValue = document.getElementById('visit-status').value;
 
     const visitData = {
-        customer_id: getFieldValue('customerid'),
+        customer_id: getFieldValue('customer-id'), // Corrected ID
         employee_id: getFieldValue('employeeid'),
         date: getFieldValue('visit-date'),
         start_time: getFieldValue('starttime'),
         end_time: getFieldValue('endtime'),
-        company_id: getFieldValue('companydetails'), // Corrected: get value from company dropdown
+        location: getFieldValue('companydetails'),
         purpose: getFieldValue('purpose'),
         notes: statusValue === 'Completed' ? getFieldValue('completion-notes') : '',
         status: statusValue
     };
-
-    // Adjusted the validation to check for company_id instead of location
-    if (!visitData.employee_id || !visitData.customer_id || !visitData.date || !visitData.start_time || !visitData.end_time || !visitData.company_id) {
-        alert('Please fill in all required visit details: Employee ID, Customer ID, Date, Start Time, End Time, and Company.');
+    if (!visitData.employee_id || !visitData.customer_id || !visitData.date || !visitData.start_time || !visitData.end_time || !visitData.location) {
+        alert('Please fill in all required visit details: Employee ID, Customer ID, Date, Start Time, End Time, and ensure a Company is selected.');
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
         return;
@@ -305,7 +274,7 @@ function addEventToTimeline(detailedVisit) {
     }
 
     dayHeaders.forEach((header, index) => {
-        if (index === 0) return; // First header cell is empty spacer for time labels
+        if (index === 0) return; 
         const dayNumberEl = header.querySelector('.day-number');
         if (dayNumberEl && parseInt(dayNumberEl.textContent) === visitDateParts.day) {
             targetDayColumnIndex = index;
@@ -324,7 +293,7 @@ function addEventToTimeline(detailedVisit) {
         let labelHour;
         if (labelTime.includes("AM")) {
             labelHour = parseInt(labelTime.replace(" AM", ""));
-            if (labelHour === 12) labelHour = 0; // 12 AM is hour 0
+            if (labelHour === 12) labelHour = 0; 
         } else if (labelTime.includes("PM")) {
             labelHour = parseInt(labelTime.replace(" PM", ""));
             if (labelHour !== 12) labelHour += 12; 
@@ -340,7 +309,7 @@ function addEventToTimeline(detailedVisit) {
         console.warn("Visit start time slot not found in current week view. Event not added.", visitStartTime);
         return;
     }
-    const targetCellIndex = targetRowIndex * 8 + targetDayColumnIndex; // 8 columns: 1 for time, 7 for days
+    const targetCellIndex = targetRowIndex * 8 + targetDayColumnIndex; 
     const targetCell = timeGrid.children[targetCellIndex];
 
     if (!targetCell || !targetCell.classList.contains('grid-cell')) {
@@ -348,16 +317,31 @@ function addEventToTimeline(detailedVisit) {
         return;
     }
     const eventDiv = document.createElement('div');
-    eventDiv.classList.add('event', visitStatus.replace(/\s+/g, '-').toLowerCase()); // Ensure status is CSS-friendly
+    eventDiv.classList.add('event', visitStatus.replace(/\s+/g, '-').toLowerCase()); 
     const employeeName = detailedVisit.Employee ? detailedVisit.Employee.name : 'N/A';
-    const customerName = detailedVisit.Customer ? detailedVisit.Customer.customer_name : 'N/A';
+    const customerName = detailedVisit.Customer ? detailedVisit.Customer.name : 'N/A'; 
     eventDiv.textContent = `Emp ${employeeName} - ${customerName} (${visitStartTime})`;
     eventDiv.setAttribute('data-visit-id', detailedVisit.visit_id || 'N/A');
     targetCell.appendChild(eventDiv);
     console.log(`Event added to: Day Column Index ${targetDayColumnIndex}, Row Index ${targetRowIndex}`);
 }
-$(document).ready(function() {
-    // Initialize form submit listener
+
+document.addEventListener('DOMContentLoaded', function() {
+    const companyDetailsSelect = document.getElementById('companydetails');
+    const customerSelectedCompanyInput = document.getElementById('customer-selected-company');
+
+    if (companyDetailsSelect && customerSelectedCompanyInput) {
+        companyDetailsSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+
+            if (selectedOption && selectedOption.value) {
+                customerSelectedCompanyInput.value = selectedOption.value;
+            } else {
+                customerSelectedCompanyInput.value = '';
+            }
+        });
+    }
+
     const visitForm = document.getElementById('visit-form');
     if (visitForm) {
         visitForm.addEventListener('submit', handleVisitFormSubmit);
@@ -374,13 +358,13 @@ $(document).ready(function() {
 
     if (monthYearEl && calendarGridEl && prevBtn && nextBtn) {
         const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        let calCurrentDate = new Date(); // Use a different name to avoid conflict if 'currentDate' is used elsewhere
+        let calCurrentDate = new Date(); 
         let calCurrentMonth = calCurrentDate.getMonth();
         let calCurrentYear = calCurrentDate.getFullYear();
 
         function renderSmallCalendar(month, year) {
             if (!calendarGridEl) return;
-            calendarGridEl.innerHTML = ""; // Clear previous grid
+            calendarGridEl.innerHTML = ""; 
 
             daysOfWeek.forEach(day => {
                 const dayHeader = document.createElement("div");
@@ -392,7 +376,7 @@ $(document).ready(function() {
             const daysInCurrentMonth = new Date(year, month + 1, 0).getDate();
 
             for (let i = 0; i < firstDayOfMonth; i++) {
-                calendarGridEl.appendChild(document.createElement("div")); // Empty cells for offset
+                calendarGridEl.appendChild(document.createElement("div")); 
             }
 
             for (let day = 1; day <= daysInCurrentMonth; day++) {
@@ -400,14 +384,15 @@ $(document).ready(function() {
                 dayCell.classList.add("day");
                 dayCell.textContent = day;
 
-                if (day === calCurrentDate.getDate() && month === calCurrentDate.getMonth() && year === calCurrentDate.getFullYear()) {
+                const today = new Date(); // Get current date for 'today' comparison
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                     dayCell.classList.add("today");
                 }
                 dayCell.addEventListener('click', function() {
                     const dayNumberText = this.textContent;
                     const monthYearText = monthYearEl.textContent;
                     const visitDateForForm = `${monthYearText} ${dayNumberText}`;
-                    formpopup(visitDateForForm, "09:00"); // Default time, HH:mm
+                    formpopup(visitDateForForm, "09:00"); 
                 });
                 calendarGridEl.appendChild(dayCell);
             }
@@ -433,7 +418,7 @@ $(document).ready(function() {
             renderSmallCalendar(calCurrentMonth, calCurrentYear);
         });
 
-        renderSmallCalendar(calCurrentMonth, calCurrentYear); // Initial render
+        renderSmallCalendar(calCurrentMonth, calCurrentYear); 
     } else {
         console.warn("One or more small calendar elements (month-year, calendar-grid, prev-month, next-month) not found.");
     }
@@ -450,3 +435,24 @@ $(document).ready(function() {
         }
     });
 });
+
+function closeform() {
+    const modal = document.getElementById('visit-modal');
+    if (modal) {
+        modal.style.display = "none";
+    }
+    const removeblur = document.querySelector('.main-content');
+    if (removeblur) {
+        removeblur.classList.remove('blur-background');
+    }
+}
+
+const modalOverlay = document.getElementById('visit-modal');
+if (modalOverlay) {
+    modalOverlay.addEventListener('click', function (e) {
+        if (e.target === modalOverlay) {
+            closeform(); 
+        }
+    });
+}
+

@@ -10,7 +10,6 @@
       }
 
       const newCompany = await Company.create({
-        companyid,
         company_name,
         location,
       });
