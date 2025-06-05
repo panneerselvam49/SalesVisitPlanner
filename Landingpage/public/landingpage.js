@@ -13,7 +13,7 @@ function parseDate(dateString) {
     const date = new Date(dateString);
     return {
         year: date.getFullYear(),
-        month: date.getMonth(), // 0-indexed
+        month: date.getMonth(), 
         day: date.getDate()
     };
 }
@@ -40,10 +40,10 @@ async function fetchAndPopulateCompanyDropdown() {
 
         companies.forEach(company => {
             const option = document.createElement('option');
-            option.value = company.company_name; // Value is the company_name (PK)
+            option.value = company.company_name; 
             
             let displayText = company.company_name;
-            if (company.location) { // Check if location exists
+            if (company.location) { 
                 displayText += ` - ${company.location}`;
             }
             option.textContent = displayText;
@@ -51,11 +51,10 @@ async function fetchAndPopulateCompanyDropdown() {
             companyDetailsSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error fetching or populating company dropdown:', error); //
+        console.error('Error fetching or populating company dropdown:', error); 
         companyDetailsSelect.innerHTML = '<option value="">Error loading companies</option>';
     }
 }
-
 
 function formpopup(cellDate, cellTime) {
     const modal = document.getElementById('visit-modal');
@@ -63,6 +62,7 @@ function formpopup(cellDate, cellTime) {
         console.error("Visit modal element not found!");
         return;
     }
+
     const mainContent = document.querySelector('.main-content');
     if (mainContent) {
         mainContent.classList.add('blur-background');
@@ -70,7 +70,6 @@ function formpopup(cellDate, cellTime) {
 
     const visitDateInput = document.getElementById('visit-date');
     const visitStartTimeInput = document.getElementById('starttime');
-
 
     if (cellDate && visitDateInput) {
         try {
@@ -84,27 +83,29 @@ function formpopup(cellDate, cellTime) {
             visitDateInput.value = cellDate;
         }
     }
+
     if (cellTime && visitStartTimeInput) {
         try {
-            let [time, modifier] = cellTime.split(' ');
-            let [hours, minutes] = time.split(':');
-            if (!minutes) minutes = '00'; 
+            let [timePart, modifier] = cellTime.trim().split(/\s+/);
+            let [hoursStr, minutesStr] = timePart.split(':');
 
-            hours = parseInt(hours);
+            let hours = parseInt(hoursStr);
+            let minutes = minutesStr ? parseInt(minutesStr) : 0;
 
             if (modifier && modifier.toUpperCase() === 'PM' && hours < 12) {
                 hours += 12;
             }
-            if (modifier && modifier.toUpperCase() === 'AM' && hours === 12) { 
+            if (modifier && modifier.toUpperCase() === 'AM' && hours === 12) {
                 hours = 0;
             }
-            
-            visitStartTimeInput.value = `${hours.toString().padStart(2, '0')}:${minutes}`;
+
+            visitStartTimeInput.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         } catch(e) {
             console.error("Error parsing cellTime for form popup:", cellTime, e);
             visitStartTimeInput.value = cellTime; 
         }
     }
+
     modal.style.display = 'flex';
 }
 
@@ -188,7 +189,7 @@ async function handleVisitFormSubmit(event) {
     const statusValue = document.getElementById('visit-status').value;
 
     const visitData = {
-        customer_id: getFieldValue('customer-id'), // Corrected ID
+        customer_id: getFieldValue('customer-id'),
         employee_id: getFieldValue('employeeid'),
         date: getFieldValue('visit-date'),
         start_time: getFieldValue('starttime'),
@@ -348,8 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error("Visit form with ID 'visit-form' not found for submit listener.");
     }
-    fetchAndPopulateCompanyDropdown();
-
+    fetchAndPopulateCompanyDropdown();  
     initializeGridCellListeners(); 
     const monthYearEl = document.getElementById("month-year");
     const calendarGridEl = document.querySelector(".calendar .calendar-grid");
@@ -392,7 +392,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const dayNumberText = this.textContent;
                     const monthYearText = monthYearEl.textContent;
                     const visitDateForForm = `${monthYearText} ${dayNumberText}`;
-                    formpopup(visitDateForForm, "09:00"); 
                 });
                 calendarGridEl.appendChild(dayCell);
             }
@@ -455,4 +454,3 @@ if (modalOverlay) {
         }
     });
 }
-

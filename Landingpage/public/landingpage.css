@@ -129,7 +129,6 @@ body {
   background-color: #f0f8ff;
 }
 
-/* Visit indicators */
 .visit-indicators {
   display: flex;
   gap: 3px;
@@ -622,4 +621,12 @@ textarea:focus {
   border-radius: 50%;
 }
 
+.dayview{
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+}
 
+.weekview{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}

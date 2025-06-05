@@ -33,16 +33,16 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
   });
 
-  User.associate = (models) => {
-    User.hasMany(models.User, {
-      foreignKey: 'manager_id',
-      as: 'Team',
-    });
-    User.belongsTo(models.User, {
-      foreignKey: 'manager_id',
-      as: 'Manager',
-    });
-  };
+    User.associate = (models) => {
+      User.hasMany(models.User, {
+        foreignKey: 'manager_id',
+        as: 'Team',
+      });
+      User.belongsTo(models.User, {
+        foreignKey: 'manager_id',
+        as: 'Manager',
+      });
+    };
 
-  return User;
+    return User;
 };

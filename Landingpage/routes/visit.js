@@ -1,8 +1,31 @@
-// In routes/visit.js
 const express = require('express');
 const router = express.Router();
-// Make sure to import all necessary models
-const { Visit, Customer, User, Company } = require('../models'); // Adjust if User/Company are not directly used but needed for include
+const { Visit, Customer, User, Company } = require('../models');
+
+router.get('/', async (req, res) => {
+    try {
+        const visits = await Visit.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'Employee', 
+                    attributes: ['name', 'employee_id']
+                },
+                {
+                    model: Customer,
+                    as: 'Customer', 
+                    attributes: ['customer_name', 'customer_id'] 
+                }
+            ],
+            order: [['date', 'ASC'], ['start_time', 'ASC']] 
+        });
+        res.json(visits);
+    } catch (error) {
+        console.error("Error fetching visits:", error);
+        res.status(500).json({ error: "Failed to retrieve visits", details: error.message });
+    }
+});
+
 
 router.post('/', async (req, res) => {
   try {
@@ -26,7 +49,7 @@ router.post('/', async (req, res) => {
       location,
       purpose,
       notes,
-      status: status || 'Planned' // Use provided status or default to 'Planned'
+      status: status || 'Planned' 
     });
 
     const detailedVisit = await Visit.findByPk(newVisit.visit_id, {
