@@ -13,10 +13,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: true,
     },
-    department: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
     companyName: { 
       type: DataTypes.STRING(100),
       allowNull: false,

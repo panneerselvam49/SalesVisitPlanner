@@ -7,7 +7,7 @@ const company = require('./routes/company');
 const customer = require('./routes/customer');
 const visit = require('./routes/visit');
 const session = require('express-session');
-
+const lead=require('./routes/lead')
 const app = express();
 app.use(session({
     secret: 'your-very-secure-secret-key',
@@ -42,6 +42,7 @@ app.use('/api/auth', authtrout);
 app.use('/api/company', isAuthenticated, company);
 app.use('/api/customer', isAuthenticated, customer);
 app.use('/api/visit', isAuthenticated, visit);
+app.use('/api/lead', isAuthenticated, lead)
 app.get('/', (req, res) => {
   if (req.session && req.session.userId) {
     return res.redirect('/landing');

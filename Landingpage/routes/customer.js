@@ -15,7 +15,6 @@ router.post('/', async (req, res) => {
     const newCustomer = await Customer.create({
       customer_name,
       contact,
-      department,
       company_id,
     });
 

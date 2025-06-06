@@ -1,21 +1,58 @@
-// Helper functions (can be at the top)
 function getUserRole() {
     const storedRole = sessionStorage.getItem('userRole');
-    return storedRole || currentUserRole; // Ensure currentUserRole is defined if sessionStorage is empty
+    return storedRole || currentUserRole; 
 }
 
 function formatTimeForDisplay(timeStr) {
     if (!timeStr) return '';
-    return timeStr.substring(0, 5); // Returns "HH:MM"
+    return timeStr.substring(0, 5);
 }
 
 function parseDate(dateString) {
     const date = new Date(dateString);
     return {
         year: date.getFullYear(),
-        month: date.getMonth(), 
+        month: date.getMonth(),
         day: date.getDate()
     };
+}
+
+async function fetchLeadDetails() {
+    const companyDetailsSelect = document.getElementById('leaddetails');
+    if (!companyDetailsSelect) {
+        console.error("Lead details dropdown not found!");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/lead');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const leads = await response.json();
+        companyDetailsSelect.innerHTML = '';
+
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = "";
+        placeholderOption.textContent = "Select a Lead";
+        companyDetailsSelect.appendChild(placeholderOption);
+
+        leads.forEach(lead => {
+            const option = document.createElement('option');
+            option.value = lead.company_name;
+
+            let displayText = lead.company_name;
+            if (lead.location) {
+                displayText += ` - ${lead.location}`;
+            }
+            option.textContent = displayText;
+
+            companyDetailsSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching or populating lead dropdown:', error);
+        companyDetailsSelect.innerHTML = '<option value="">Error loading leads</option>';
+    }
 }
 
 async function fetchAndPopulateCompanyDropdown() {
@@ -26,32 +63,32 @@ async function fetchAndPopulateCompanyDropdown() {
     }
 
     try {
-        const response = await fetch('/api/company'); 
+        const response = await fetch('/api/company');
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`); 
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const companies = await response.json(); 
+        const companies = await response.json();
         companyDetailsSelect.innerHTML = '';
 
         const placeholderOption = document.createElement('option');
         placeholderOption.value = "";
-        placeholderOption.textContent = "Select a Company";
+        placeholderOption.textContent = "Select a Customer";
         companyDetailsSelect.appendChild(placeholderOption);
 
         companies.forEach(company => {
             const option = document.createElement('option');
-            option.value = company.company_name; 
-            
+            option.value = company.company_name;
+
             let displayText = company.company_name;
-            if (company.location) { 
+            if (company.location) {
                 displayText += ` - ${company.location}`;
             }
             option.textContent = displayText;
-            
+
             companyDetailsSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error fetching or populating company dropdown:', error); 
+        console.error('Error fetching or populating company dropdown:', error);
         companyDetailsSelect.innerHTML = '<option value="">Error loading companies</option>';
     }
 }
@@ -100,9 +137,9 @@ function formpopup(cellDate, cellTime) {
             }
 
             visitStartTimeInput.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        } catch(e) {
+        } catch (e) {
             console.error("Error parsing cellTime for form popup:", cellTime, e);
-            visitStartTimeInput.value = cellTime; 
+            visitStartTimeInput.value = cellTime;
         }
     }
 
@@ -115,9 +152,9 @@ function initializeCalendarDayListeners(monthYearElRef, renderCalendarFunc) {
     calendarDays.forEach(day => {
         day.addEventListener('click', function() {
             const dayNumber = this.textContent;
-            const monthYearText = monthYearElRef.textContent; 
+            const monthYearText = monthYearElRef.textContent;
             const visitDateForForm = `${monthYearText} ${dayNumber}`;
-            formpopup(visitDateForForm, "09:00"); 
+            formpopup(visitDateForForm, "09:00");
         });
     });
 }
@@ -139,11 +176,11 @@ function initializeGridCellListeners() {
             if (columnIndex === 0) return;
 
             const dayHeaderCells = document.querySelectorAll('.day-header-cell');
-            if (columnIndex <= 0 || columnIndex >= dayHeaderCells.length) { 
+            if (columnIndex <= 0 || columnIndex >= dayHeaderCells.length) {
                 console.error('Error in initializeGridCellListeners: columnIndex invalid.');
                 return;
             }
-            const dayHeader = dayHeaderCells[columnIndex]; 
+            const dayHeader = dayHeaderCells[columnIndex];
             const dayNumberElement = dayHeader.querySelector('.day-number');
             if (!dayNumberElement) {
                 console.error('Error: .day-number element not found.');
@@ -158,8 +195,8 @@ function initializeGridCellListeners() {
             const dateRangeText = dateRangeTextElement.textContent;
             const monthMatch = dateRangeText.match(/([A-Za-z]+)\s\d+\s*(-|,)/);
             const yearMatch = dateRangeText.match(/,\s*(\d{4})/);
-            const month = monthMatch ? monthMatch[1] : "April"; 
-            const year = yearMatch ? yearMatch[1] : new Date().getFullYear().toString(); 
+            const month = monthMatch ? monthMatch[1] : "April";
+            const year = yearMatch ? yearMatch[1] : new Date().getFullYear().toString();
 
             const visitDate = `${month} ${dayNumber}, ${year}`;
             const rowIndex = Math.floor(index / 8);
@@ -211,7 +248,9 @@ async function handleVisitFormSubmit(event) {
     try {
         const response = await fetch('/api/visit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(visitData),
         });
         if (!response.ok) {
@@ -249,7 +288,7 @@ function addEventToTimeline(detailedVisit) {
     const timeLabels = document.querySelectorAll('.time-grid .time-label');
     const timeGrid = document.querySelector('.time-grid');
     const dateRangeTextEl = document.querySelector('.week-header .date-range');
-     if (!dateRangeTextEl) {
+    if (!dateRangeTextEl) {
         console.error("Date range element not found for timeline update.");
         return;
     }
@@ -275,7 +314,7 @@ function addEventToTimeline(detailedVisit) {
     }
 
     dayHeaders.forEach((header, index) => {
-        if (index === 0) return; 
+        if (index === 0) return;
         const dayNumberEl = header.querySelector('.day-number');
         if (dayNumberEl && parseInt(dayNumberEl.textContent) === visitDateParts.day) {
             targetDayColumnIndex = index;
@@ -294,11 +333,11 @@ function addEventToTimeline(detailedVisit) {
         let labelHour;
         if (labelTime.includes("AM")) {
             labelHour = parseInt(labelTime.replace(" AM", ""));
-            if (labelHour === 12) labelHour = 0; 
+            if (labelHour === 12) labelHour = 0;
         } else if (labelTime.includes("PM")) {
             labelHour = parseInt(labelTime.replace(" PM", ""));
-            if (labelHour !== 12) labelHour += 12; 
-        } else { 
+            if (labelHour !== 12) labelHour += 12;
+        } else {
             labelHour = parseInt(labelTime.split(':')[0]);
         }
         if (visitHour === labelHour) {
@@ -310,7 +349,7 @@ function addEventToTimeline(detailedVisit) {
         console.warn("Visit start time slot not found in current week view. Event not added.", visitStartTime);
         return;
     }
-    const targetCellIndex = targetRowIndex * 8 + targetDayColumnIndex; 
+    const targetCellIndex = targetRowIndex * 8 + targetDayColumnIndex;
     const targetCell = timeGrid.children[targetCellIndex];
 
     if (!targetCell || !targetCell.classList.contains('grid-cell')) {
@@ -318,16 +357,38 @@ function addEventToTimeline(detailedVisit) {
         return;
     }
     const eventDiv = document.createElement('div');
-    eventDiv.classList.add('event', visitStatus.replace(/\s+/g, '-').toLowerCase()); 
+    eventDiv.classList.add('event', visitStatus.replace(/\s+/g, '-').toLowerCase());
     const employeeName = detailedVisit.Employee ? detailedVisit.Employee.name : 'N/A';
-    const customerName = detailedVisit.Customer ? detailedVisit.Customer.name : 'N/A'; 
+    const customerName = detailedVisit.Customer ? detailedVisit.Customer.name : 'N/A';
     eventDiv.textContent = `Emp ${employeeName} - ${customerName} (${visitStartTime})`;
     eventDiv.setAttribute('data-visit-id', detailedVisit.visit_id || 'N/A');
     targetCell.appendChild(eventDiv);
     console.log(`Event added to: Day Column Index ${targetDayColumnIndex}, Row Index ${targetRowIndex}`);
 }
-
 document.addEventListener('DOMContentLoaded', function() {
+
+    const timeGrid = document.querySelector('.time-grid');
+    if(timeGrid) {
+        timeGrid.addEventListener('click', async function(e) {
+            const eventElement = e.target.closest('.event');
+            if (eventElement) {
+                const visitId = eventElement.getAttribute('data-visit-id');
+                if (visitId && visitId !== 'N/A') {
+                    try {
+                        const response = await fetch(`/api/visit/${visitId}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch visit data. Status: ${response.status}`);
+                        }
+                        const visitData = await response.json();
+                        populateAndShowVisitForm(visitData);
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Could not load visit details.');
+                    }
+                }
+            }
+        });
+    }
     const companyDetailsSelect = document.getElementById('companydetails');
     const customerSelectedCompanyInput = document.getElementById('customer-selected-company');
 
@@ -349,8 +410,11 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error("Visit form with ID 'visit-form' not found for submit listener.");
     }
-    fetchAndPopulateCompanyDropdown();  
-    initializeGridCellListeners(); 
+
+    fetchAndPopulateCompanyDropdown();
+    fetchLeadDetails();
+    initializeGridCellListeners();
+    
     const monthYearEl = document.getElementById("month-year");
     const calendarGridEl = document.querySelector(".calendar .calendar-grid");
     const prevBtn = document.getElementById("prev-month");
@@ -358,13 +422,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (monthYearEl && calendarGridEl && prevBtn && nextBtn) {
         const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        let calCurrentDate = new Date(); 
+        let calCurrentDate = new Date();
         let calCurrentMonth = calCurrentDate.getMonth();
         let calCurrentYear = calCurrentDate.getFullYear();
 
         function renderSmallCalendar(month, year) {
             if (!calendarGridEl) return;
-            calendarGridEl.innerHTML = ""; 
+            calendarGridEl.innerHTML = "";
 
             daysOfWeek.forEach(day => {
                 const dayHeader = document.createElement("div");
@@ -376,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const daysInCurrentMonth = new Date(year, month + 1, 0).getDate();
 
             for (let i = 0; i < firstDayOfMonth; i++) {
-                calendarGridEl.appendChild(document.createElement("div")); 
+                calendarGridEl.appendChild(document.createElement("div"));
             }
 
             for (let day = 1; day <= daysInCurrentMonth; day++) {
@@ -384,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dayCell.classList.add("day");
                 dayCell.textContent = day;
 
-                const today = new Date(); // Get current date for 'today' comparison
+                const today = new Date(); 
                 if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                     dayCell.classList.add("today");
                 }
@@ -417,10 +481,11 @@ document.addEventListener('DOMContentLoaded', function() {
             renderSmallCalendar(calCurrentMonth, calCurrentYear);
         });
 
-        renderSmallCalendar(calCurrentMonth, calCurrentYear); 
+        renderSmallCalendar(calCurrentMonth, calCurrentYear);
     } else {
         console.warn("One or more small calendar elements (month-year, calendar-grid, prev-month, next-month) not found.");
     }
+    
     const visitStatusSelect = document.getElementById('visit-status');
     const visitCompletedInput = document.getElementById('visits-completed');
     if (visitStatusSelect && visitCompletedInput) {
@@ -428,13 +493,32 @@ document.addEventListener('DOMContentLoaded', function() {
             visitCompletedInput.style.display = (this.value === 'Completed') ? 'block' : 'none';
         });
     }
+
     document.querySelectorAll('.day-headers .day-header-cell .day-name').forEach((el) => {
         if (el.textContent.trim() === 'Sun') {
             el.closest('.day-header-cell').classList.add('sunday-header');
         }
     });
-});
+    const typeOfClientSelect = document.getElementById('TypeOfClient');
+    const leadDropdown = document.getElementById('leaddetails').closest('.form-row');
+    const customerDropdown = document.getElementById('companydetails').closest('.form-row');
 
+    function toggleClientDropdowns() {
+        if (typeOfClientSelect.value === 'lead') {
+            leadDropdown.style.display = 'block';
+            customerDropdown.style.display = 'none';
+        } else {
+            leadDropdown.style.display = 'none';
+            customerDropdown.style.display = 'block';
+        }
+    }
+    
+    if (typeOfClientSelect && leadDropdown && customerDropdown) {
+        typeOfClientSelect.addEventListener('change', toggleClientDropdowns);
+        toggleClientDropdowns();
+    }
+
+}); 
 function closeform() {
     const modal = document.getElementById('visit-modal');
     if (modal) {
@@ -448,9 +532,44 @@ function closeform() {
 
 const modalOverlay = document.getElementById('visit-modal');
 if (modalOverlay) {
-    modalOverlay.addEventListener('click', function (e) {
+    modalOverlay.addEventListener('click', function(e) {
         if (e.target === modalOverlay) {
-            closeform(); 
+            closeform();
         }
     });
 }
+
+function populateAndShowVisitForm(visit) {
+  if (!visit) return;
+  const formElements = document.querySelectorAll('#visit-form input, #visit-form select, #visit-form textarea');
+  formElements.forEach(el => el.disabled = true);
+  document.getElementById('customer-id').value = visit.Customer ? visit.Customer.customer_id : '';
+  document.getElementById('customer name').value = visit.Customer ? visit.Customer.customer_name : '';
+  document.getElementById('contact-details').value = visit.Customer ? visit.Customer.contact : '';
+  const companyDropdown = document.getElementById('companydetails');
+  if (visit.Customer && visit.Customer.companyName) {
+    companyDropdown.value = visit.Customer.companyName;
+  }
+  document.getElementById('employeeid').value = visit.Employee ? visit.Employee.employee_id : '';
+  document.getElementById('customerid').value = visit.Customer ? visit.Customer.customer_id : '';
+  document.getElementById('visit-date').value = visit.date;
+  document.getElementById('starttime').value = visit.start_time;
+  document.getElementById('endtime').value = visit.end_time;
+  document.getElementById('visit-location').value = visit.location;
+  document.getElementById('purpose').value = visit.purpose;
+  document.getElementById('visit-status').value = visit.status;
+  document.getElementById('completion-notes').value = visit.notes || '';
+  const completionNotesSection = document.getElementById('visits-completed');
+  if (visit.status === 'Completed') {
+    completionNotesSection.style.display = 'block';
+  } else {
+    completionNotesSection.style.display = 'none';
+  }
+  const modal = document.getElementById('visit-modal');
+  modal.style.display = 'flex';
+  const mainContent = document.querySelector('.main-content');
+  if (mainContent) {
+    mainContent.classList.add('blur-background');
+  }
+}
+

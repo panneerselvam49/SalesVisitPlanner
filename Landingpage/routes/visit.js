@@ -71,4 +71,34 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const visitId = req.params.id;
+    const visit = await Visit.findByPk(visitId, {
+      include: [
+        {
+          model: User,
+          as: 'Employee',
+          attributes: ['name', 'employee_id']
+        },
+        {
+          model: Customer,
+          as: 'Customer',
+          attributes: ['customer_name', 'customer_id', 'contact', 'companyName']
+        }
+      ]
+    });
+
+    if (!visit) {
+      return res.status(404).json({ error: 'Visit not found' });
+    }
+
+    res.json(visit);
+  } catch (error) {
+    console.error("Error fetching single visit:", error);
+    res.status(500).json({ error: "Failed to retrieve visit", details: error.message });
+  }
+});
+
+
 module.exports = router;

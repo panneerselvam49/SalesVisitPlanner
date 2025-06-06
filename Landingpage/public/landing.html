@@ -4,16 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="shortcut icon" href="./images/ktt_logo.jpg" type="image/x-icon"> <title>Sales Visit Planner</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="landingpage.css">
 </head>
 <body>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     <nav class="headernav">
         <div><a href="#" style="font-weight: 900;">Calendar</a></div>
         <div><a href="#" id="visittable">Visits</a></div>
@@ -47,21 +46,14 @@
         <div class="week-view-container">
             <div class="week-header">
                 <h3>Visit Timeline</h3>
-                <div class="week-nav">
-                    <button>&lt; Previous</button>
-                    <button>Today</button>
-                    <button>Next &gt;</button>
-                </div>
-                <div class="date-range">April 20 - 26, 2025</div>
-                <div>
-                <select id="custom-view">
-                <option value="day" onclick="dayview()" class="dayview">Day</option>
-                <option value="week" class="weekview" onclick="weekview()">Week</option>
+                <button type="button" class="btn btn-secondary">Today</button>
+                <div class="date-range">April 2025</div>
+                <select id="calendar-view">
+                <option value="day">Day</option>
+                <option value="week" selected>Week</option>
                 <option value="month">Month</option>
                 </select>
-                </div>
             </div>
-            
             <div class="day-headers">
                 <div class="day-header-cell"></div>
                 <div class="day-header-cell">
@@ -130,10 +122,25 @@
             
             <form id="visit-form">
                 <div class="form-section">
-                    <img src="./images/close_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="Close Button" id="closeModal" onclick="closeform()">
+                    <img src="./images/close_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="Close Button" id="closeModal" onclick="closeform()" width="25px" height="20px">
+                    <div>
+                    <h3>Type of customer</h3>
+                    <select name="TypeOfClient" id="TypeOfClient" required>
+                    <option value="customer" id="exsitingcustomer">Customer</option>
+                    <option value="lead" id="lead">Lead</option>
+                    </select>
+                    </div><br>
                     <div class="form-row">
                         <div class="form-group">
-                            <select name="" id="companydetails" required>
+                            <select name="" id="leaddetails">
+                                <option value="">Type of client</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <select name="" id="companydetails">
                                 <option value=""></option>
                             </select>
                         </div>
@@ -143,7 +150,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="customer-id">Customer ID</label>
-                            <input type="text" id="customer-id" placeholder="Enter Customer ID">
+                            <input type="number" id="customer-id" placeholder="Enter Customer ID">
                         </div>
                     </div>
 
@@ -153,24 +160,10 @@
                             <input type="text" id="customer name" placeholder="Customer Name">
                         </div>
                     </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customer-selected-company">Associated Company</label>
-                            <input type="text" id="customer-selected-company" placeholder="Company selected above" readonly style="background-color: #e9ecef; cursor: default;">
-                        </div>
-                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="contact-details">Contact Details</label>
                             <input type="text" id="contact-details" placeholder="Enter contact details">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="department">Department</label>
-                            <input type="text" id="department" placeholder="Customer Department">
                         </div>
                     </div>
 
@@ -225,10 +218,12 @@
                         </div>
                     </div>
 
+                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="visit-status">Visit Status:</label>
-                            <select id="visit-status" name="visitStatus" required>
+                            <select id="visit-status" name="visitStatus" required >
                                 <option value="Planned" selected>Planned</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
@@ -242,6 +237,17 @@
                             <textarea id="completion-notes" name="completionNotes" placeholder="Enter notes about the completed visit"></textarea>
                         </div>
                     </div>
+                    <div class="container">
+	        <div class="tabs">
+		            <input type="radio" id="radio-1" name="tabs" checked="">
+		            <label class="tab" for="radio-1">Hello<span class="notification">2</span></label>
+		            <input type="radio" id="radio-2" name="tabs">
+		            <label class="tab" for="radio-2">UI</label>
+		            <input type="radio" id="radio-3" name="tabs">
+		            <label class="tab" for="radio-3">World</label>
+		            <span class="glider"></span>
+	            </div>
+            </div>
                     </div>
                  <div style="text-align: right; padding: 15px 20px; border-top: 1px solid #eee;">
                     <button type="button" class="cancel-btn" onclick="closeform()">Cancel</button>
@@ -250,6 +256,7 @@
             </form>
         </div>
     </div>
+    
     <script src="./landingpage.js"></script>
 </body>
 </html>
