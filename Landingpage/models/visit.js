@@ -37,11 +37,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-  status: {
-  type: DataTypes.ENUM('Planned', 'Completed', 'Cancelled', 'Pending', 'In-Progress'),
-  allowNull: false,
-  defaultValue: 'Planned',
-  },
+    status: {
+    type: DataTypes.ENUM('Planned', 'Completed', 'Cancelled', 'Pending', 'In-Progress'),
+    allowNull: false,
+    defaultValue: 'Planned',
+    },
+    visit_source: {
+      type: DataTypes.ENUM('CUSTOMER', 'LEAD'),
+      allowNull: false,
+      defaultValue: 'CUSTOMER' 
+    }
   }, {
     timestamps: false,
   });

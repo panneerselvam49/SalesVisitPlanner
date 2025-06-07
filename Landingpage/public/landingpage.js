@@ -1,575 +1,320 @@
-function getUserRole() {
-    const storedRole = sessionStorage.getItem('userRole');
-    return storedRole || currentUserRole; 
-}
-
 function formatTimeForDisplay(timeStr) {
     if (!timeStr) return '';
     return timeStr.substring(0, 5);
 }
 
-function parseDate(dateString) {
-    const date = new Date(dateString);
-    return {
-        year: date.getFullYear(),
-        month: date.getMonth(),
-        day: date.getDate()
-    };
-}
-
 async function fetchLeadDetails() {
-    const companyDetailsSelect = document.getElementById('leaddetails');
-    if (!companyDetailsSelect) {
-        console.error("Lead details dropdown not found!");
-        return;
-    }
-
+    const leadDetailsSelect = document.getElementById('leaddetails');
     try {
         const response = await fetch('/api/lead');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const leads = await response.json();
-        companyDetailsSelect.innerHTML = '';
-
-        const placeholderOption = document.createElement('option');
-        placeholderOption.value = "";
-        placeholderOption.textContent = "Select a Lead";
-        companyDetailsSelect.appendChild(placeholderOption);
-
+        leadDetailsSelect.innerHTML = '<option value="">Select a Lead...</option>';
         leads.forEach(lead => {
             const option = document.createElement('option');
             option.value = lead.company_name;
-
-            let displayText = lead.company_name;
-            if (lead.location) {
-                displayText += ` - ${lead.location}`;
-            }
-            option.textContent = displayText;
-
-            companyDetailsSelect.appendChild(option);
+            option.textContent = lead.location ? `${lead.company_name} - ${lead.location}` : lead.company_name;
+            leadDetailsSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error fetching or populating lead dropdown:', error);
-        companyDetailsSelect.innerHTML = '<option value="">Error loading leads</option>';
+        console.error('Error fetching leads:', error);
     }
 }
 
 async function fetchAndPopulateCompanyDropdown() {
     const companyDetailsSelect = document.getElementById('companydetails');
-    if (!companyDetailsSelect) {
-        console.error("Company details dropdown not found!");
-        return;
-    }
-
     try {
-        const response = await fetch('/api/company');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const companies = await response.json();
-        companyDetailsSelect.innerHTML = '';
-
-        const placeholderOption = document.createElement('option');
-        placeholderOption.value = "";
-        placeholderOption.textContent = "Select a Customer";
-        companyDetailsSelect.appendChild(placeholderOption);
-
-        companies.forEach(company => {
+        const response = await fetch('/api/customer');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const customers = await response.json();
+        companyDetailsSelect.innerHTML = '<option value="">Select a Customer...</option>';
+        customers.forEach(customer => {
             const option = document.createElement('option');
-            option.value = company.company_name;
-
-            let displayText = company.company_name;
-            if (company.location) {
-                displayText += ` - ${company.location}`;
-            }
-            option.textContent = displayText;
-
+            option.value = customer.customer_id;
+            option.dataset.contact = customer.contact || ''; // Store contact info on the option
+            option.textContent = customer.Company ? `${customer.Company.company_name} (${customer.customer_id})` : `${customer.customer_name} (${customer.customer_id})`;
             companyDetailsSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error fetching or populating company dropdown:', error);
-        companyDetailsSelect.innerHTML = '<option value="">Error loading companies</option>';
+        console.error('Error fetching customers for dropdown:', error);
+    }
+}
+
+async function fetchAllVisitsAndRender() {
+    try {
+        const response = await fetch('/api/visit');
+        if (!response.ok) throw new Error(`Failed to fetch visits.`);
+        const visits = await response.json();
+        visits.forEach(addEventToTimeline);
+    } catch (error) {
+        console.error('Error loading all visits:', error);
     }
 }
 
 function formpopup(cellDate, cellTime) {
     const modal = document.getElementById('visit-modal');
-    if (!modal) {
-        console.error("Visit modal element not found!");
-        return;
-    }
-
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.add('blur-background');
-    }
+    const visitForm = document.getElementById('visit-form');
+    visitForm.reset();
+    document.getElementById('visit-id-holder').value = '';
+    document.getElementById('save-btn').style.display = 'inline-block';
+    document.getElementById('update-btn').style.display = 'none';
+    document.getElementById('delete-visit-btn').style.display = 'none';
+    document.querySelector('.main-content').classList.add('blur-background');
 
     const visitDateInput = document.getElementById('visit-date');
+    if (cellDate) {
+        visitDateInput.value = new Date(cellDate).toISOString().split('T')[0];
+    }
     const visitStartTimeInput = document.getElementById('starttime');
-
-    if (cellDate && visitDateInput) {
-        try {
-            const parsedDate = new Date(cellDate);
-            const year = parsedDate.getFullYear();
-            const month = (parsedDate.getMonth() + 1).toString().padStart(2, '0');
-            const day = parsedDate.getDate().toString().padStart(2, '0');
-            visitDateInput.value = `${year}-${month}-${day}`;
-        } catch (e) {
-            console.error("Error parsing cellDate for form popup:", cellDate, e);
-            visitDateInput.value = cellDate;
-        }
+    if (cellTime) {
+        visitStartTimeInput.value = cellTime;
     }
-
-    if (cellTime && visitStartTimeInput) {
-        try {
-            let [timePart, modifier] = cellTime.trim().split(/\s+/);
-            let [hoursStr, minutesStr] = timePart.split(':');
-
-            let hours = parseInt(hoursStr);
-            let minutes = minutesStr ? parseInt(minutesStr) : 0;
-
-            if (modifier && modifier.toUpperCase() === 'PM' && hours < 12) {
-                hours += 12;
-            }
-            if (modifier && modifier.toUpperCase() === 'AM' && hours === 12) {
-                hours = 0;
-            }
-
-            visitStartTimeInput.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        } catch (e) {
-            console.error("Error parsing cellTime for form popup:", cellTime, e);
-            visitStartTimeInput.value = cellTime;
-        }
-    }
-
     modal.style.display = 'flex';
 }
 
-function initializeCalendarDayListeners(monthYearElRef, renderCalendarFunc) {
-    const calendarGridEl = document.querySelector(".calendar .calendar-grid");
-    const calendarDays = calendarGridEl.querySelectorAll('.day');
-    calendarDays.forEach(day => {
-        day.addEventListener('click', function() {
-            const dayNumber = this.textContent;
-            const monthYearText = monthYearElRef.textContent;
-            const visitDateForForm = `${monthYearText} ${dayNumber}`;
-            formpopup(visitDateForForm, "09:00");
-        });
-    });
+function populateAndShowVisitForm(visit) {
+    if (!visit) return;
+    formpopup(visit.date, formatTimeForDisplay(visit.start_time));
+    
+    document.getElementById('save-btn').style.display = 'none';
+    document.getElementById('update-btn').style.display = 'inline-block';
+    document.getElementById('delete-visit-btn').style.display = 'inline-block';
+
+    document.getElementById('visit-id-holder').value = visit.visit_id;
+    document.getElementById('employeeid').value = visit.employee_id;
+    document.getElementById('endtime').value = formatTimeForDisplay(visit.end_time);
+    document.getElementById('visit-location').value = visit.location;
+    document.getElementById('purpose').value = visit.purpose;
+    document.getElementById('visit-status').value = visit.status;
+    document.getElementById('completion-notes').value = visit.notes || '';
+
+    if (visit.Customer) {
+        document.getElementById('companydetails').value = visit.Customer.customer_id;
+        document.getElementById('leaddetails').value = '';
+        
+        // Parse and display contact info when editing a visit
+        const contactInfo = visit.Customer.contact || '';
+        const personNameMatch = contactInfo.match(/Name: (.*?)(,|$)/);
+        const contactDetailsMatch = contactInfo.match(/Info: (.*)/);
+        document.getElementById('person-name').value = personNameMatch ? personNameMatch[1].trim() : '';
+        document.getElementById('contact-details').value = contactDetailsMatch ? contactDetailsMatch[1].trim() : '';
+    }
 }
 
-
-function initializeGridCellListeners() {
-    const gridCells = document.querySelectorAll('.grid-cell');
-    if (gridCells.length === 0) {
-        console.warn("No grid cells found in initializeGridCellListeners.");
-        return;
-    }
-
-    gridCells.forEach((cell, index) => {
-        cell.addEventListener('click', function(e) {
-            if (e.target.classList.contains('event') || e.target.closest('.event')) {
-                return;
-            }
-            const columnIndex = (index % 8);
-            if (columnIndex === 0) return;
-
-            const dayHeaderCells = document.querySelectorAll('.day-header-cell');
-            if (columnIndex <= 0 || columnIndex >= dayHeaderCells.length) {
-                console.error('Error in initializeGridCellListeners: columnIndex invalid.');
-                return;
-            }
-            const dayHeader = dayHeaderCells[columnIndex];
-            const dayNumberElement = dayHeader.querySelector('.day-number');
-            if (!dayNumberElement) {
-                console.error('Error: .day-number element not found.');
-                return;
-            }
-            const dayNumber = dayNumberElement.textContent.trim();
-            const dateRangeTextElement = document.querySelector('.date-range');
-            if (!dateRangeTextElement) {
-                console.error("Could not find '.date-range' element.");
-                return;
-            }
-            const dateRangeText = dateRangeTextElement.textContent;
-            const monthMatch = dateRangeText.match(/([A-Za-z]+)\s\d+\s*(-|,)/);
-            const yearMatch = dateRangeText.match(/,\s*(\d{4})/);
-            const month = monthMatch ? monthMatch[1] : "April";
-            const year = yearMatch ? yearMatch[1] : new Date().getFullYear().toString();
-
-            const visitDate = `${month} ${dayNumber}, ${year}`;
-            const rowIndex = Math.floor(index / 8);
-            const timeLabels = document.querySelectorAll('.time-label');
-            if (rowIndex < 0 || rowIndex >= timeLabels.length) {
-                console.error('Error: rowIndex out of bounds for timeLabels.');
-                return;
-            }
-            const timeLabel = timeLabels[rowIndex].textContent.trim();
-            formpopup(visitDate, timeLabel);
-        });
-    });
+function closeform() {
+    document.getElementById('visit-modal').style.display = "none";
+    document.querySelector('.main-content').classList.remove('blur-background');
 }
 
 async function handleVisitFormSubmit(event) {
     event.preventDefault();
-    const visitForm = document.getElementById('visit-form');
-    const submitButton = visitForm.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Saving...';
+    const visitId = document.getElementById('visit-id-holder').value;
+    const getFieldValue = (id) => document.getElementById(id)?.value.trim() || null;
 
-    const getFieldValue = (id) => {
-        const element = document.getElementById(id);
-        return element ? element.value.trim() : null;
-    };
-    const statusValue = document.getElementById('visit-status').value;
+    const customerId = getFieldValue('companydetails');
+    const leadCompanyName = getFieldValue('leaddetails');
 
-    const visitData = {
-        customer_id: getFieldValue('customer-id'),
+    let visitData = {
         employee_id: getFieldValue('employeeid'),
         date: getFieldValue('visit-date'),
         start_time: getFieldValue('starttime'),
         end_time: getFieldValue('endtime'),
-        location: getFieldValue('companydetails'),
+        location: getFieldValue('visit-location'),
         purpose: getFieldValue('purpose'),
-        notes: statusValue === 'Completed' ? getFieldValue('completion-notes') : '',
-        status: statusValue
+        status: document.getElementById('visit-status').value,
+        notes: getFieldValue('completion-notes'),
+        person_name: getFieldValue('person-name'),
+        contact_details: getFieldValue('contact-details')
     };
-    if (!visitData.employee_id || !visitData.customer_id || !visitData.date || !visitData.start_time || !visitData.end_time || !visitData.location) {
-        alert('Please fill in all required visit details: Employee ID, Customer ID, Date, Start Time, End Time, and ensure a Company is selected.');
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
+
+    if (customerId) {
+        visitData.customer_id = customerId;
+    } else if (leadCompanyName) {
+        visitData.lead_company_name = leadCompanyName;
+    } else {
+        alert('Please select either an Existing Customer or a Lead.');
         return;
     }
 
-    console.log('Submitting Visit Data:', visitData);
+    const method = visitId ? 'PUT' : 'POST';
+    const url = visitId ? `/api/visit/${visitId}` : '/api/visit';
 
     try {
-        const response = await fetch('/api/visit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(visitData),
         });
         if (!response.ok) {
-            const errorDataFromServer = await response.json().catch(() => ({
-                error: "Failed to parse error response from server",
-                details: "Server returned an error status without a JSON body or with malformed JSON."
-            }));
-            console.error('Server error response data (from /api/visit):', errorDataFromServer);
-            let detailedMessage = errorDataFromServer.details || errorDataFromServer.error || `Server responded with ${response.status}`;
-            alert(`Failed to save visit: ${detailedMessage}`);
-            throw new Error(detailedMessage);
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server responded with ${response.status}`);
         }
-        const newDetailedVisit = await response.json();
-        console.log('Visit saved successfully, response:', newDetailedVisit);
-        if (typeof addEventToTimeline === 'function') addEventToTimeline(newDetailedVisit);
-        if (typeof closeModal === 'function') closeModal();
+        window.location.reload();
     } catch (error) {
-        console.error('Overall error submitting visit form:', error.message);
-    } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
+        console.error('Error saving/updating visit:', error);
+        alert(`Failed to save visit: ${error.message}`);
     }
 }
 
-function addEventToTimeline(detailedVisit) {
-    if (!detailedVisit || !detailedVisit.date || !detailedVisit.start_time || !detailedVisit.status) {
-        console.error('Invalid visit data for timeline update:', detailedVisit);
-        return;
+async function handleDeleteVisit(event) {
+    event.preventDefault();
+    const visitId = document.getElementById('visit-id-holder').value;
+    if (!visitId || !confirm('Are you sure you want to delete this visit?')) return;
+    try {
+        const response = await fetch(`/api/visit/${visitId}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Failed to delete visit.');
+        window.location.reload();
+    } catch (error) {
+        console.error('Error deleting visit:', error);
+        alert(error.message);
     }
-    const visitDateParts = parseDate(detailedVisit.date);
-    const visitStartTime = formatTimeForDisplay(detailedVisit.start_time);
-    const visitStatus = detailedVisit.status.toLowerCase();
+}
 
-    const dayHeaders = document.querySelectorAll('.day-headers .day-header-cell');
-    const timeLabels = document.querySelectorAll('.time-grid .time-label');
-    const timeGrid = document.querySelector('.time-grid');
-    const dateRangeTextEl = document.querySelector('.week-header .date-range');
-    if (!dateRangeTextEl) {
-        console.error("Date range element not found for timeline update.");
-        return;
-    }
-    const dateRangeText = dateRangeTextEl.textContent;
+function addEventToTimeline(visit) {
+    if (!visit || !visit.date || !visit.start_time) return;
+    const visitDate = new Date(`${visit.date}T00:00:00`);
+    const dayOfWeek = visitDate.getDay(); 
+    const startTimeHour = parseInt(formatTimeForDisplay(visit.start_time).split(':')[0]);
+    const dayColumn = dayOfWeek + 1;
+    const targetCell = document.querySelector(`.time-grid > div:nth-child(${startTimeHour * 8 + dayColumn + 1})`);
 
-
-    let targetDayColumnIndex = -1;
-    const yearMatch = dateRangeText.match(/(\d{4})/);
-    const monthMatch = dateRangeText.match(/([A-Za-z]+)/);
-
-    if (!yearMatch || !monthMatch) {
-        console.error("Could not parse year or month from date range text for timeline.");
-        return;
-    }
-    const currentYearInView = parseInt(yearMatch[0]);
-    const currentMonthNameInView = monthMatch[0];
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const currentMonthInView = monthNames.findIndex(m => m.toLowerCase() === currentMonthNameInView.toLowerCase());
-
-    if (visitDateParts.year !== currentYearInView || visitDateParts.month !== currentMonthInView) {
-        console.warn("Visit date is not in the currently displayed week's month/year. Event not added.");
-        return;
-    }
-
-    dayHeaders.forEach((header, index) => {
-        if (index === 0) return;
-        const dayNumberEl = header.querySelector('.day-number');
-        if (dayNumberEl && parseInt(dayNumberEl.textContent) === visitDateParts.day) {
-            targetDayColumnIndex = index;
-        }
-    });
-
-    if (targetDayColumnIndex === -1) {
-        console.warn("Visit date's day not found in current week view. Event not added.", visitDateParts);
-        return;
-    }
-
-    let targetRowIndex = -1;
-    timeLabels.forEach((label, index) => {
-        const labelTime = label.textContent.trim().toUpperCase();
-        const visitHour = parseInt(visitStartTime.split(':')[0]);
-        let labelHour;
-        if (labelTime.includes("AM")) {
-            labelHour = parseInt(labelTime.replace(" AM", ""));
-            if (labelHour === 12) labelHour = 0;
-        } else if (labelTime.includes("PM")) {
-            labelHour = parseInt(labelTime.replace(" PM", ""));
-            if (labelHour !== 12) labelHour += 12;
-        } else {
-            labelHour = parseInt(labelTime.split(':')[0]);
-        }
-        if (visitHour === labelHour) {
-            targetRowIndex = index;
-        }
-    });
-
-    if (targetRowIndex === -1) {
-        console.warn("Visit start time slot not found in current week view. Event not added.", visitStartTime);
-        return;
-    }
-    const targetCellIndex = targetRowIndex * 8 + targetDayColumnIndex;
-    const targetCell = timeGrid.children[targetCellIndex];
-
-    if (!targetCell || !targetCell.classList.contains('grid-cell')) {
-        console.error("Calculated target cell is not a valid grid-cell:", targetCell, "at index", targetCellIndex);
+    if (!targetCell) {
         return;
     }
     const eventDiv = document.createElement('div');
-    eventDiv.classList.add('event', visitStatus.replace(/\s+/g, '-').toLowerCase());
-    const employeeName = detailedVisit.Employee ? detailedVisit.Employee.name : 'N/A';
-    const customerName = detailedVisit.Customer ? detailedVisit.Customer.name : 'N/A';
-    eventDiv.textContent = `Emp ${employeeName} - ${customerName} (${visitStartTime})`;
-    eventDiv.setAttribute('data-visit-id', detailedVisit.visit_id || 'N/A');
+    eventDiv.classList.add('event', visit.status.replace(/\s+/g, '-').toLowerCase());
+    eventDiv.setAttribute('data-visit-id', visit.visit_id);
+    eventDiv.textContent = `${visit.Customer?.customer_name || 'Lead'} @ ${formatTimeForDisplay(visit.start_time)}`;
     targetCell.appendChild(eventDiv);
-    console.log(`Event added to: Day Column Index ${targetDayColumnIndex}, Row Index ${targetRowIndex}`);
 }
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    const timeGrid = document.querySelector('.time-grid');
-    if(timeGrid) {
-        timeGrid.addEventListener('click', async function(e) {
-            const eventElement = e.target.closest('.event');
-            if (eventElement) {
-                const visitId = eventElement.getAttribute('data-visit-id');
-                if (visitId && visitId !== 'N/A') {
-                    try {
-                        const response = await fetch(`/api/visit/${visitId}`);
-                        if (!response.ok) {
-                            throw new Error(`Failed to fetch visit data. Status: ${response.status}`);
-                        }
-                        const visitData = await response.json();
-                        populateAndShowVisitForm(visitData);
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('Could not load visit details.');
-                    }
-                }
+function initializeGridCellListeners() {
+    document.querySelectorAll('.time-grid .grid-cell').forEach((cell, index) => {
+        cell.addEventListener('click', function(e) {
+            if (e.target.closest('.event')) return;
+
+            const dayIndex = index % 8;
+            if (dayIndex === 0) return;
+
+            const hourIndex = Math.floor(index / 8);
+
+            const dayHeader = document.querySelector(`.day-headers .day-header-cell:nth-child(${dayIndex + 1}) .day-number`);
+            
+            const monthYearText = document.querySelector('.date-range').textContent;
+            
+            if (dayHeader) {
+                const dayNumber = dayHeader.textContent;
+                const dateForPopup = new Date(`${monthYearText} ${dayNumber}`);
+                const timeForPopup = `${String(hourIndex).padStart(2, '0')}:00`;
+                
+                formpopup(dateForPopup, timeForPopup);
             }
         });
-    }
-    const companyDetailsSelect = document.getElementById('companydetails');
-    const customerSelectedCompanyInput = document.getElementById('customer-selected-company');
-
-    if (companyDetailsSelect && customerSelectedCompanyInput) {
-        companyDetailsSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-
-            if (selectedOption && selectedOption.value) {
-                customerSelectedCompanyInput.value = selectedOption.value;
-            } else {
-                customerSelectedCompanyInput.value = '';
-            }
-        });
-    }
-
-    const visitForm = document.getElementById('visit-form');
-    if (visitForm) {
-        visitForm.addEventListener('submit', handleVisitFormSubmit);
-    } else {
-        console.error("Visit form with ID 'visit-form' not found for submit listener.");
-    }
-
-    fetchAndPopulateCompanyDropdown();
-    fetchLeadDetails();
-    initializeGridCellListeners();
+    });
+}
     
     const monthYearEl = document.getElementById("month-year");
     const calendarGridEl = document.querySelector(".calendar .calendar-grid");
     const prevBtn = document.getElementById("prev-month");
     const nextBtn = document.getElementById("next-month");
-
-    if (monthYearEl && calendarGridEl && prevBtn && nextBtn) {
-        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        let calCurrentDate = new Date();
-        let calCurrentMonth = calCurrentDate.getMonth();
-        let calCurrentYear = calCurrentDate.getFullYear();
-
+    
+     if (monthYearEl && calendarGridEl && prevBtn && nextBtn) {
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        let currentDate = new Date();
         function renderSmallCalendar(month, year) {
-            if (!calendarGridEl) return;
-            calendarGridEl.innerHTML = "";
-
+            calendarGridEl.innerHTML = ""; 
+            const monthName = monthNames[month];
+            monthYearEl.textContent = `${monthName} ${year}`;
+            document.querySelector('.date-range').textContent = `${monthName} ${year}`;
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(day => {
                 const dayHeader = document.createElement("div");
                 dayHeader.textContent = day;
+                dayHeader.style.fontWeight = 'bold';
                 calendarGridEl.appendChild(dayHeader);
             });
-
             const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInCurrentMonth = new Date(year, month + 1, 0).getDate();
-
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
             for (let i = 0; i < firstDayOfMonth; i++) {
                 calendarGridEl.appendChild(document.createElement("div"));
             }
-
-            for (let day = 1; day <= daysInCurrentMonth; day++) {
+            for (let day = 1; day <= daysInMonth; day++) {
                 const dayCell = document.createElement("div");
                 dayCell.classList.add("day");
                 dayCell.textContent = day;
-
-                const today = new Date(); 
+                const today = new Date();
                 if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                     dayCell.classList.add("today");
                 }
-                dayCell.addEventListener('click', function() {
-                    const dayNumberText = this.textContent;
-                    const monthYearText = monthYearEl.textContent;
-                    const visitDateForForm = `${monthYearText} ${dayNumberText}`;
-                });
                 calendarGridEl.appendChild(dayCell);
             }
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            monthYearEl.textContent = `${monthNames[month]} ${year}`;
         }
-
         prevBtn.addEventListener("click", () => {
-            calCurrentMonth--;
-            if (calCurrentMonth < 0) {
-                calCurrentMonth = 11;
-                calCurrentYear--;
-            }
-            renderSmallCalendar(calCurrentMonth, calCurrentYear);
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderSmallCalendar(currentDate.getMonth(), currentDate.getFullYear());
         });
-
         nextBtn.addEventListener("click", () => {
-            calCurrentMonth++;
-            if (calCurrentMonth > 11) {
-                calCurrentMonth = 0;
-                calCurrentYear++;
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderSmallCalendar(currentDate.getMonth(), currentDate.getFullYear());
+        });
+        renderSmallCalendar(currentDate.getMonth(), currentDate.getFullYear());
+    }
+
+    fetchLeadDetails();
+    fetchAndPopulateCompanyDropdown();
+    fetchAllVisitsAndRender();
+    initializeGridCellListeners();
+
+    const visitForm = document.getElementById('visit-form');
+    visitForm.addEventListener('submit', handleVisitFormSubmit);
+    document.getElementById('update-btn').addEventListener('click', handleVisitFormSubmit);
+    document.getElementById('delete-visit-btn').addEventListener('click', handleDeleteVisit);
+
+    document.querySelector('.time-grid').addEventListener('click', async function(e) {
+        const eventElement = e.target.closest('.event:not(.multiple-visits)');
+        if (eventElement) {
+            const visitId = eventElement.getAttribute('data-visit-id');
+            if (visitId) {
+                try {
+                    const response = await fetch(`/api/visit/${visitId}`);
+                    if (!response.ok) throw new Error('Failed to fetch visit data.');
+                    const visitData = await response.json();
+                    populateAndShowVisitForm(visitData);
+                } catch (error) {
+                    alert('Could not load visit details.');
+                }
             }
-            renderSmallCalendar(calCurrentMonth, calCurrentYear);
-        });
-
-        renderSmallCalendar(calCurrentMonth, calCurrentYear);
-    } else {
-        console.warn("One or more small calendar elements (month-year, calendar-grid, prev-month, next-month) not found.");
-    }
-    
-    const visitStatusSelect = document.getElementById('visit-status');
-    const visitCompletedInput = document.getElementById('visits-completed');
-    if (visitStatusSelect && visitCompletedInput) {
-        visitStatusSelect.addEventListener('change', function() {
-            visitCompletedInput.style.display = (this.value === 'Completed') ? 'block' : 'none';
-        });
-    }
-
-    document.querySelectorAll('.day-headers .day-header-cell .day-name').forEach((el) => {
-        if (el.textContent.trim() === 'Sun') {
-            el.closest('.day-header-cell').classList.add('sunday-header');
         }
     });
-    const typeOfClientSelect = document.getElementById('TypeOfClient');
-    const leadDropdown = document.getElementById('leaddetails').closest('.form-row');
-    const customerDropdown = document.getElementById('companydetails').closest('.form-row');
-
-    function toggleClientDropdowns() {
-        if (typeOfClientSelect.value === 'lead') {
-            leadDropdown.style.display = 'block';
-            customerDropdown.style.display = 'none';
-        } else {
-            leadDropdown.style.display = 'none';
-            customerDropdown.style.display = 'block';
-        }
-    }
     
-    if (typeOfClientSelect && leadDropdown && customerDropdown) {
-        typeOfClientSelect.addEventListener('change', toggleClientDropdowns);
-        toggleClientDropdowns();
-    }
+    document.getElementById('visit-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeform();
+    });
 
-}); 
-function closeform() {
-    const modal = document.getElementById('visit-modal');
-    if (modal) {
-        modal.style.display = "none";
-    }
-    const removeblur = document.querySelector('.main-content');
-    if (removeblur) {
-        removeblur.classList.remove('blur-background');
-    }
-}
+    const customerDropdown = document.getElementById('companydetails');
+    const leadDropdown = document.getElementById('leaddetails');
+    const personNameInput = document.getElementById('person-name');
+    const contactDetailsInput = document.getElementById('contact-details');
 
-const modalOverlay = document.getElementById('visit-modal');
-if (modalOverlay) {
-    modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) {
-            closeform();
+    customerDropdown.addEventListener('change', (e) => {
+        if (e.target.value) {
+            leadDropdown.value = '';
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const contactInfo = selectedOption.dataset.contact || '';
+            const personNameMatch = contactInfo.match(/Name: (.*?)(,|$)/);
+            const contactDetailsMatch = contactInfo.match(/Info: (.*)/);
+            personNameInput.value = personNameMatch ? personNameMatch[1].trim() : '';
+            contactDetailsInput.value = contactDetailsMatch ? contactDetailsMatch[1].trim() : '';
         }
     });
-}
 
-function populateAndShowVisitForm(visit) {
-  if (!visit) return;
-  const formElements = document.querySelectorAll('#visit-form input, #visit-form select, #visit-form textarea');
-  formElements.forEach(el => el.disabled = true);
-  document.getElementById('customer-id').value = visit.Customer ? visit.Customer.customer_id : '';
-  document.getElementById('customer name').value = visit.Customer ? visit.Customer.customer_name : '';
-  document.getElementById('contact-details').value = visit.Customer ? visit.Customer.contact : '';
-  const companyDropdown = document.getElementById('companydetails');
-  if (visit.Customer && visit.Customer.companyName) {
-    companyDropdown.value = visit.Customer.companyName;
-  }
-  document.getElementById('employeeid').value = visit.Employee ? visit.Employee.employee_id : '';
-  document.getElementById('customerid').value = visit.Customer ? visit.Customer.customer_id : '';
-  document.getElementById('visit-date').value = visit.date;
-  document.getElementById('starttime').value = visit.start_time;
-  document.getElementById('endtime').value = visit.end_time;
-  document.getElementById('visit-location').value = visit.location;
-  document.getElementById('purpose').value = visit.purpose;
-  document.getElementById('visit-status').value = visit.status;
-  document.getElementById('completion-notes').value = visit.notes || '';
-  const completionNotesSection = document.getElementById('visits-completed');
-  if (visit.status === 'Completed') {
-    completionNotesSection.style.display = 'block';
-  } else {
-    completionNotesSection.style.display = 'none';
-  }
-  const modal = document.getElementById('visit-modal');
-  modal.style.display = 'flex';
-  const mainContent = document.querySelector('.main-content');
-  if (mainContent) {
-    mainContent.classList.add('blur-background');
-  }
-}
-
+    leadDropdown.addEventListener('change', () => {
+        if (leadDropdown.value) {
+            customerDropdown.value = '';
+            personNameInput.value = '';
+            contactDetailsInput.value = '';
+        }
+    });
+});

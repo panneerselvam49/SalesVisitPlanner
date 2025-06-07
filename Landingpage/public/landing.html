@@ -20,7 +20,6 @@
     </nav>
 
     <div class="main-content">
-
         <div class="calendar">
             <div class="calendar-header">
                 <h2 id="month-year" style="display: inline-block; margin-left: 0%;"></h2>
@@ -30,13 +29,7 @@
                 </span>
             </div>
             <div class="calendar-grid">
-                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-                <div></div><div></div><div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div><div class="day">5</div>
-                <div class="day">6</div><div class="day">7</div><div class="day">8</div><div class="day completed">9</div><div class="day">10</div><div class="day">11</div><div class="day cancelled">12</div>
-                <div class="day">13</div><div class="day">14</div><div class="day">15</div><div class="day">16</div><div class="day pending">17</div><div class="day">18</div><div class="day">19</div>
-                <div class="day">20</div><div class="day">21</div><div class="day">22</div><div class="day today">23</div><div class="day">24</div><div class="day">25</div><div class="day completed">26</div>
-                <div class="day">27</div><div class="day">28</div><div class="day cancelled">29</div><div class="day">30</div><div></div>
-            </div>
+                </div>
             <h3>Other Calendars</h3>
             <a href="#">Employee1</a>
             <a href="#">Employee2</a>
@@ -87,6 +80,7 @@
             </div>
             
             <div class="time-grid-wrapper">
+                 
                 <div class="time-grid">
                     <div class="time-label">1 AM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
                     <div class="time-label">2 AM</div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
@@ -116,142 +110,128 @@
         </div>
     </div>
 
-    <div id="visit-modal" class="modal">
+    <div id="visit-modal" class="modal" tabindex="-1">
         <div class="modal-content">
-            
-            
             <form id="visit-form">
                 <div class="form-section">
                     <img src="./images/close_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="Close Button" id="closeModal" onclick="closeform()" width="25px" height="20px">
                     <div>
-                    <h3>Type of customer</h3>
-                    <select name="TypeOfClient" id="TypeOfClient" required>
-                    <option value="customer" id="exsitingcustomer">Customer</option>
-                    <option value="lead" id="lead">Lead</option>
-                    </select>
-                    </div><br>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <select name="" id="leaddetails">
-                                <option value="">Type of client</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <select name="" id="companydetails">
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
+                        <input type="hidden" id="visit-id-holder">
 
-                    <h3>Customer Details</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customer-id">Customer ID</label>
-                            <input type="number" id="customer-id" placeholder="Enter Customer ID">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="companydetails">Existing Customer</label>
+                                <select name="companydetails" id="companydetails">
+                                    <option value="">Select a Customer...</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                        <h4 style="text-align: center;">Or</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="leaddetails">Lead</label>
+                                <select name="leaddetails" id="leaddetails">
+                                    <option value="">Select a Lead...</option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customer name">Customer Name</label>
-                            <input type="text" id="customer name" placeholder="Customer Name">
+                        <div id="existing-customer-details" style="display:none;"> 
+                            <h3>Customer Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="customer-id">Customer ID</label>
+                                    <input type="text" id="customer-id" placeholder="Customer ID" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer-name">Customer Name</label>
+                                    <input type="text" id="customer-name" placeholder="Customer Name" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contact-details">Contact Details</label>
+                                    <input type="text" id="contact-details" placeholder="Contact details" readonly>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="contact-details">Contact Details</label>
-                            <input type="text" id="contact-details" placeholder="Enter contact details">
-                        </div>
-                    </div>
 
-                    <h3>Visits Details</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="employeeid">Employee ID</label>
-                            <input type="text" id="employeeid" placeholder="Employee ID" required>
+                        <h3>Contact Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeid">Contact Details</label>
+                                <input type="text" id="employeeid" placeholder="Contact Deatils" required>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customerid">Customer ID</label>
-                            <input type="number" id="customerid" placeholder="Customer ID" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contact-details">Person Name</label>
+                                <input type="text" id="person-name" placeholder="Employee ID" required>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="visit-date">Visit Date</label>
-                            <input type="date" id="visit-date" placeholder="Visit Date" required>
+                        <h3>Visits Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeid">Employee ID</label>
+                                <input type="text" id="employeeid" placeholder="Employee ID" required>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="starttime">Visit start time</label>
-                            <input type="time" id="starttime" placeholder="Visit start time" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="visit-date">Visit Date</label>
+                                <input type="date" id="visit-date" placeholder="Visit Date" required>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="endtime">Visit end time</label>
-                            <input type="time" id="endtime" placeholder="Visit end time" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="starttime">Visit start time</label>
+                                <input type="time" id="starttime" placeholder="Visit start time" required>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="visit-location">Location</label>
-                            <input type="text" id="visit-location" placeholder="Visit location" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="endtime">Visit end time</label>
+                                <input type="time" id="endtime" placeholder="Visit end time" required>
+                            </div>
                         </div>
-                    </div>
-
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="purpose">Visit Purpose</label>
-                            <input type="text" id="purpose" placeholder="Visit purpose" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="visit-location">Location</label>
+                                <input type="text" id="visit-location" placeholder="Visit location" required>
+                            </div>
                         </div>
-                    </div>
-
-                    
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="visit-status">Visit Status:</label>
-                            <select id="visit-status" name="visitStatus" required >
-                                <option value="Planned" selected>Planned</option>
-                                <option value="Completed">Completed</option>
-                                <option value="Cancelled">Cancelled</option>
-                                <option value="Pending">Pending</option>
-                                <option value="In-Progress">In-Progress</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="purpose">Visit Purpose</label>
+                                <input type="text" id="purpose" placeholder="Visit purpose" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row" id="visits-completed" style="display: none;"> <div class="form-group">
-                            <label for="completion-notes">Completion Notes (if any):</label>
-                            <textarea id="completion-notes" name="completionNotes" placeholder="Enter notes about the completed visit"></textarea>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="visit-status">Visit Status:</label>
+                                <select id="visit-status" name="visitStatus" required >
+                                    <option value="Planned" selected>Planned</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In-Progress">In-Progress</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="container">
-	        <div class="tabs">
-		            <input type="radio" id="radio-1" name="tabs" checked="">
-		            <label class="tab" for="radio-1">Hello<span class="notification">2</span></label>
-		            <input type="radio" id="radio-2" name="tabs">
-		            <label class="tab" for="radio-2">UI</label>
-		            <input type="radio" id="radio-3" name="tabs">
-		            <label class="tab" for="radio-3">World</label>
-		            <span class="glider"></span>
-	            </div>
-            </div>
+                        <div class="form-row" id="visits-completed" style="display: none;">
+                             <div class="form-group">
+                                <label for="completion-notes">Completion Notes (if any):</label>
+                                <textarea id="completion-notes" name="completionNotes" placeholder="Enter notes about the completed visit"></textarea>
+                            </div>
+                        </div>
                     </div>
                  <div style="text-align: right; padding: 15px 20px; border-top: 1px solid #eee;">
                     <button type="button" class="cancel-btn" onclick="closeform()">Cancel</button>
-                    <button type="submit" class="save-btn" style="margin-left: 10px;">Save Visit</button>
+                    <button type="submit" id="save-btn" class="save-btn" style="margin-left: 10px;">Save Visit</button>
+                    <button type="button" id="update-btn" class="save-btn" style="margin-left: 10px; display: none;">Update</button>
+                    <button type="button" id="delete-visit-btn" class="cancel-btn" style="background-color: #e53935; display: none; margin-left: 10px;">Delete</button>
                 </div>
             </form>
         </div>

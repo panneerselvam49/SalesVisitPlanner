@@ -1,104 +1,99 @@
 const express = require('express');
 const router = express.Router();
-const { Visit, Customer, User, Company } = require('../models');
+const { Visit, Customer, User, Company, Lead, sequelize } = require('../models');
 
-router.get('/', async (req, res) => {
-    try {
-        const visits = await Visit.findAll({
-            include: [
-                {
-                    model: User,
-                    as: 'Employee', 
-                    attributes: ['name', 'employee_id']
-                },
-                {
-                    model: Customer,
-                    as: 'Customer', 
-                    attributes: ['customer_name', 'customer_id'] 
-                }
-            ],
-            order: [['date', 'ASC'], ['start_time', 'ASC']] 
-        });
-        res.json(visits);
-    } catch (error) {
-        console.error("Error fetching visits:", error);
-        res.status(500).json({ error: "Failed to retrieve visits", details: error.message });
-    }
-});
+router.get('/', async (req, res) => { /* ... your existing code ... */ });
 
+
+router.get('/:id', async (req, res) => { /* ... your existing code ... */ });
 
 router.post('/', async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const { employee_id, customer_id, date, start_time, end_time, location, purpose, notes, status } = req.body;
-
-    if (!employee_id || !customer_id || !date || !start_time || !end_time || !location) {
-      return res.status(400).json({ error: 'Missing required visit details.' });
-    }
-
-    const customerExists = await Customer.findByPk(customer_id);
-    if (!customerExists) {
-      return res.status(404).json({ error: `Customer with ID ${customer_id} not found.` });
-    }
-
-    const newVisit = await Visit.create({
+    const {
       employee_id,
-      customer_id,
+      customer_id, 
+      lead_company_name,
       date,
       start_time,
       end_time,
       location,
       purpose,
       notes,
-      status: status || 'Planned' 
-    });
+      status,
+      person_name,
+      contact_details
+    } = req.body;
 
+    let final_customer_id = customer_id;
+    if (lead_company_name) {
+      
+        const lead = await Lead.findOne({ where: { company_name: lead_company_name }, transaction: t });
+        if (!lead) {
+            await t.rollback();
+            return res.status(404).json({ error: `Lead with name "${lead_company_name}" not found.` });
+        }
+
+        const [company] = await Company.findOrCreate({
+            where: { company_name: lead.company_name },
+            defaults: { location: lead.location || 'N/A' },
+            transaction: t
+        });
+        const newCustomer = await Customer.create({
+            customer_name: lead.company_name,
+            companyName: company.company_name,
+            contact: `Name: ${person_name || 'N/A'}, Info: ${contact_details || 'N/A'}`
+        }, { transaction: t });
+      
+        final_customer_id = newCustomer.customer_id; 
+
+        lead.status = 'Converted';
+        await lead.save({ transaction: t });
+    }
+    
+    if (!employee_id || !final_customer_id || !date || !start_time || !end_time || !location) {
+      await t.rollback();
+      return res.status(400).json({ error: 'Missing required visit details.' });
+    }
+
+    const newVisit = await Visit.create({
+      employee_id,
+      customer_id: final_customer_id,
+      date,
+      start_time,
+      end_time,
+      location,
+      purpose,
+      notes,
+      status: status || 'Planned',
+    }, { transaction: t });
+
+    await t.commit();
     const detailedVisit = await Visit.findByPk(newVisit.visit_id, {
       include: [
         { model: User, as: 'Employee', attributes: ['name', 'employee_id'] },
         {
           model: Customer,
           as: 'Customer',
-          attributes: ['customer_name', 'customer_id'],
+          attributes: ['customer_name', 'customer_id', 'contact', 'companyName'],
           include: [{ model: Company, as: 'Company', attributes: ['company_name'] }]
         }
       ]
     });
 
     res.status(201).json(detailedVisit);
+
   } catch (error) {
-    console.error('Error saving visit:', error);
-    res.status(500).json({ error: 'Failed to save visit', details: error.message });
+    await t.rollback();
+    console.error('Error in visit creation transaction:', error);
+    res.status(500).json({ error: 'Failed to create visit', details: error.message });
   }
 });
 
-router.get('/:id', async (req, res) => {
-  try {
-    const visitId = req.params.id;
-    const visit = await Visit.findByPk(visitId, {
-      include: [
-        {
-          model: User,
-          as: 'Employee',
-          attributes: ['name', 'employee_id']
-        },
-        {
-          model: Customer,
-          as: 'Customer',
-          attributes: ['customer_name', 'customer_id', 'contact', 'companyName']
-        }
-      ]
-    });
 
-    if (!visit) {
-      return res.status(404).json({ error: 'Visit not found' });
-    }
+router.put('/:id', async (req, res) => { /* ... your existing code ... */ });
 
-    res.json(visit);
-  } catch (error) {
-    console.error("Error fetching single visit:", error);
-    res.status(500).json({ error: "Failed to retrieve visit", details: error.message });
-  }
-});
+router.delete('/:id', async (req, res) => { /* ... your existing code ... */ });
 
 
 module.exports = router;
