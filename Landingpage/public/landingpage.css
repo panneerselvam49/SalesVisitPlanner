@@ -57,7 +57,7 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
   flex: 1;
   width: 250px;
-  height:600px;
+  height: 600px;
 }
 
 .calendar-grid {
@@ -240,7 +240,6 @@ body {
 }
 
 .date-range {
-  margin-left: 50px;
   font-weight: 500;
   width: 100px;
 }
@@ -250,12 +249,17 @@ body {
   grid-template-columns: 60px repeat(7, 1fr);
   border-bottom: 1px solid #eee;
   background-color: #f1f3f4;
+  position: static;
+  top: 1px;
 }
 
 .day-header-cell {
   padding: 10px 0;
-  text-align: center;
+  margin-left: 30px;
+  text-align: left;
   border-right: 1px solid #eee;
+  position: sticky;
+  top: 8px;
 }
 
 .day-name {
@@ -628,7 +632,6 @@ textarea:focus {
   margin-left: 20%;
 }
 
-/* From Uiverse.io by Pradeepsaranbishnoi */ 
 .tabs {
   display: flex;
   position: relative;
@@ -750,4 +753,157 @@ textarea:focus {
 }
 #hover-add-btn::before {
   content: none;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 5px;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+.view-btn {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.view-btn.active {
+  background-color: #1976d2;
+  color: white;
+}
+
+.view-wrapper {
+  flex: 3; 
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+}
+
+#main-view-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    justify-content: start;
+}
+
+.month-view-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    height: 100%;
+}
+
+.month-day-header {
+    text-align: center;
+    padding: 10px 0;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+.month-day-cell {
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+    min-height: 120px;
+    position: relative;
+}
+
+.month-day-cell:nth-child(7n) {
+    border-right: none;
+}
+
+.month-day-number {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.month-day-cell.today .month-day-number {
+    color: white;
+    background-color: #039be5;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.month-day-cell.other-month {
+    background-color: #fafafa;
+    color: #aaa;
+}
+
+.month-event {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.month-event.planned {
+  background-color: #039be5;
+  color: white;
+}
+
+.month-event.in-progress {
+  background-color: #ff9800;
+  color: white;
+}
+
+.month-event.completed {
+  background-color: #4caf50;
+  color: white;
+}
+
+.month-event.cancelled {
+  background-color: #e53935;
+  color: white;
+}
+
+.month-event.pending {
+  background-color: #fff1b8;
+  color: #333;
+  border: 1px solid #ffcc00;
+}
+
+#prev-months{
+  font-weight: 900;
+  padding: 5px;
+  cursor: pointer;
+  transition: 0.5s ease-in-out;
+}
+#prev-months:hover{
+  color: blue;
+}
+
+#next-months{
+  font-weight: 900;
+  padding: 5px;
+  margin-right: 40px;
+  cursor: pointer;
+}
+
+#next-months:hover{
+  color: blue;
 }
