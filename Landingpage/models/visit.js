@@ -11,7 +11,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     customer_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true, 
+    },
+    lead_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'Leads',
+            key: 'lead_id',
+        }
     },
     date: {
       type: DataTypes.DATEONLY,
@@ -38,19 +46,17 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     status: {
-    type: DataTypes.ENUM('Planned', 'Completed', 'Cancelled', 'Pending', 'In-Progress'),
-    allowNull: false,
-    defaultValue: 'Planned',
+        type: DataTypes.ENUM('Planned', 'Completed', 'Cancelled', 'Pending', 'In-Progress'),
+        allowNull: false,
+        defaultValue: 'Planned',
     },
     visit_source: {
       type: DataTypes.ENUM('CUSTOMER', 'LEAD'),
       allowNull: false,
-      defaultValue: 'CUSTOMER' 
     }
   }, {
     timestamps: false,
   });
-
   Visit.associate = (models) => {
     Visit.belongsTo(models.User, {
       foreignKey: 'employee_id',
@@ -59,6 +65,10 @@ module.exports = (sequelize, DataTypes) => {
     Visit.belongsTo(models.Customer, {
       foreignKey: 'customer_id',
       as: 'Customer',
+    });
+    Visit.belongsTo(models.Lead, {
+        foreignKey: 'lead_id',
+        as: 'Lead'
     });
   };
 
