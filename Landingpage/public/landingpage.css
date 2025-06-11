@@ -240,7 +240,6 @@ body {
 }
 
 .date-range {
-  font-weight: 500;
   width: 100px;
 }
 
@@ -254,12 +253,11 @@ body {
 }
 
 .day-header-cell {
-  padding: 10px 0;
-  margin-left: 30px;
+  padding: 10px 0 10px 30px;
   text-align: left;
   border-right: 1px solid #eee;
-  position: sticky;
-  top: 8px;
+  /* display: flex;
+  justify-content: space-evenly; */
 }
 
 .day-name {
@@ -294,7 +292,7 @@ body {
   text-align: right;
   color: #70757a;
   font-size: 12px;
-  height: 60px;
+  min-height: 60px;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
   position: sticky;
@@ -304,7 +302,7 @@ body {
 }
 
 .grid-cell {
-  height: 60px;
+  min-height: 60px;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
   position: relative;
@@ -751,6 +749,7 @@ textarea:focus {
   background-color: rgba(255, 255, 255, 1);
   transform: scale(1.1);
 }
+
 #hover-add-btn::before {
   content: none;
 }
@@ -768,7 +767,6 @@ textarea:focus {
   border: none;
   background: transparent;
   border-radius: 20px;
-  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
 }
@@ -900,10 +898,42 @@ textarea:focus {
 #next-months{
   font-weight: 900;
   padding: 5px;
-  margin-right: 40px;
   cursor: pointer;
 }
 
 #next-months:hover{
   color: blue;
+}
+
+.event {
+  position: relative; 
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 95%; 
+  margin: 1px auto;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.event-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sunday-header {
+    color: red;
+    font-weight: bold;
+}
+
+.other-calendar{
+  margin-top: 20px;
+  display: inline-block;
 }

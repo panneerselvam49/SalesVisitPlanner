@@ -21,5 +21,13 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'Customers',
     timestamps: true,
   });
+  
+  Customer.associate = (models) => {
+    Customer.belongsTo(models.Company, {
+      foreignKey: 'companyName',
+      targetKey: 'company_name',
+      as: 'Company'
+    });
+  };
   return Customer;
 };

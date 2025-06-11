@@ -12,6 +12,12 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     timestamps: true,
   });
-
+  Company.associate = (models) => {
+    Company.hasMany(models.Customer, {
+      foreignKey: 'companyName',
+      sourceKey: 'company_name',
+      as: 'Customers'
+    });
+  };
   return Company;
 };

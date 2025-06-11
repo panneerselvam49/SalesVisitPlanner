@@ -3,6 +3,29 @@ const router = express.Router();
 const { User } = require('../models');
 const bcrypt = require('bcryptjs');
 
+// NEW: Route to get the currently logged-in user's data from the session
+router.get('/current-user', async (req, res) => {
+  if (req.session && req.session.userId) {
+    try {
+      const user = await User.findByPk(req.session.userId, {
+        attributes: ['employee_id', 'name', 'role'] // Only send necessary, non-sensitive data
+      });
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404).json({ error: 'User from session not found in database.' });
+      }
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      res.status(500).json({ error: 'Failed to fetch user data.' });
+    }
+  } else {
+    // This case handles when the user is not logged in or the session has expired
+    res.status(401).json({ error: 'Unauthorized. No active session.' });
+  }
+});
+
+
 router.post('/register', async (req, res) => {
   try {
     const { employee_id, name, email, password, role, manager_id } = req.body;
@@ -104,6 +127,4 @@ router.post('/logout', (req, res) => {
         return res.status(200).json({ message: 'No session to destroy.' });
     }
 });
-
-
 module.exports = router;

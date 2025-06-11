@@ -20,11 +20,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST a new visit
 router.post('/', async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        const { employee_id, company_name, lead_company_name, person_name, contact_details, ...visitDetails } = req.body;
+        const { employee_id, companyName, lead_company_name, person_name, contact_details, ...visitDetails } = req.body;
         
         let visitData = { ...visitDetails, employee_id };
 
@@ -36,19 +35,18 @@ router.post('/', async (req, res) => {
             lead.status = 'Scheduled';
             await lead.save({ transaction: t });
 
-        } else if (company_name) {
+        } else if (companyName) {
             if (!person_name) {
                 await t.rollback();
                 return res.status(400).json({ error: 'Person Name is required.' });
             }
             
-            // FIX: Use 'companyName' (camelCase) to match the model definition
             const [customer] = await Customer.findOrCreate({
-                where: { customer_name: person_name, companyName: company_name },
+                where: { customer_name: person_name, companyName: companyName },
                 defaults: {
                     customer_name: person_name,
                     contact_details: contact_details,
-                    companyName: company_name 
+                    companyName: companyName 
                 },
                 transaction: t
             });
@@ -79,7 +77,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Other routes (PUT, DELETE) are kept for completeness
+// PUT (update) an existing visit
 router.put('/:id', async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -103,6 +101,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// DELETE a visit
 router.delete('/:id', async (req, res) => {
   const t = await sequelize.transaction();
   try {

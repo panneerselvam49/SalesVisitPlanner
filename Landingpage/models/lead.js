@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true, 
     },
     status:{
-        type: DataTypes.ENUM('Active', 'Not Acitve', 'Converted', 'Scheduled'),
+        type: DataTypes.ENUM('Active', 'Not Active', 'Converted', 'Scheduled'),
         allowNull: false,
         defaultValue: 'Active' 
     },
@@ -23,6 +23,17 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'Leads',
     timestamps: true,
   });
+
+  Lead.associate = (models) => {
+    Lead.hasMany(models.LeadContact, {
+      foreignKey: 'lead_id',
+      as: 'LeadContacts'
+    });
+    Lead.hasMany(models.Visit, {
+        foreignKey: 'lead_id',
+        as: 'Visits'
+    });
+  };
 
   return Lead;
 };

@@ -50,10 +50,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 'Planned',
     },
-    visit_source: {
-      type: DataTypes.ENUM('CUSTOMER', 'LEAD'),
-      allowNull: false,
-    }
   }, {
     timestamps: false,
   });
