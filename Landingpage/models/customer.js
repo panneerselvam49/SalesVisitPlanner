@@ -1,11 +1,26 @@
 module.exports = (sequelize, DataTypes) => {
   const Customer = sequelize.define('Customer', {
-    customer_id: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    customer_name: {
+    // This field now holds the company name
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    // This is the foreign key to the new Location table
+    locationId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Locations', // Correctly references the table name
+        key: 'id',
+      }
+    },
+    // This field now holds the name of the contact person
+    person_name: {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
@@ -13,21 +28,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    companyName: { 
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
   }, {
     tableName: 'Customers',
     timestamps: true,
   });
-  
+
   Customer.associate = (models) => {
-    Customer.belongsTo(models.Company, {
-      foreignKey: 'companyName',
-      targetKey: 'company_name',
-      as: 'Company'
+    // A customer belongs to one Location
+    Customer.belongsTo(models.Location, {
+      foreignKey: 'locationId',
+      as: 'Location'
+    });
+    // A customer can have many visits
+    Customer.hasMany(models.Visit, {
+      foreignKey: 'customer_id',
+      as: 'Visits'
     });
   };
+
   return Customer;
 };

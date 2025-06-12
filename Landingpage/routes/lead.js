@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-// Import both Lead and LeadContact models
-const { Lead, LeadContact } = require('../models');
+// Import only the refactored Lead model
+const { Lead } = require('../models');
 
-// This route gets all leads (already exists)
+// GET all leads
 router.get('/', async (req, res) => {
   try {
-    const leads = await Lead.findAll();
+    // The structure is flat now, no need for complex includes
+    const leads = await Lead.findAll({
+        order: [['name', 'ASC']]
+    });
     res.status(200).json(leads);
   } catch (error) {
     console.error('Error fetching leads:', error);
@@ -14,39 +17,28 @@ router.get('/', async (req, res) => {
   }
 });
 
-// This is the NEW route that needs to be loaded by the server
-router.get('/:leadId/contacts', async (req, res) => {
-    try {
-        const leadId = req.params.leadId;
-        const contacts = await LeadContact.findAll({
-            where: { lead_id: leadId },
-            order: [['contact_name', 'ASC']]
-        });
-        res.status(200).json(contacts);
-    } catch (error) {
-        console.error(`Error fetching contacts for lead ID ${req.params.leadId}:`, error);
-        res.status(500).json({ error: 'Failed to fetch lead contacts' });
-    }
-});
-
-
+// POST a new lead
 router.post('/', async (req, res) => {
   try {
-    const { company_name, location } = req.body;
+    // Destructure the new combined fields
+    const { name, location, person_name, contact_details, status } = req.body;
 
-    if (!company_name) {
-      return res.status(400).json({ error: 'Company name is required for a lead' });
+    if (!name) {
+      return res.status(400).json({ error: 'A name is required for a lead' });
     }
 
     const newLead = await Lead.create({
-      company_name,
+      name,
       location,
+      person_name,
+      contact_details,
+      status: status || 'Active',
     });
 
     res.status(201).json(newLead);
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(409).json({ error: 'A lead with this company name already exists.' });
+      return res.status(409).json({ error: 'A lead with this name already exists.' });
     }
     console.error('Error creating lead:', error);
     res.status(500).json({ error: 'Failed to create lead' });

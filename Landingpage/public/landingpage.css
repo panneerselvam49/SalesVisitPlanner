@@ -248,16 +248,27 @@ body {
   grid-template-columns: 60px repeat(7, 1fr);
   border-bottom: 1px solid #eee;
   background-color: #f1f3f4;
-  position: static;
-  top: 1px;
+  position: sticky; 
+  top: 0;
+  z-index: 3;
+}
+
+.time-grid-wrapper {
+
+  flex-grow: 1;
+}
+
+#main-view-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    justify-content: start;
 }
 
 .day-header-cell {
   padding: 10px 0 10px 30px;
   text-align: left;
   border-right: 1px solid #eee;
-  /* display: flex;
-  justify-content: space-evenly; */
 }
 
 .day-name {
@@ -274,11 +285,6 @@ body {
 .day-number.today {
   color: #039be5;
   font-weight: bold;
-}
-
-.time-grid-wrapper {
-  overflow-y: auto;
-  flex-grow: 1;
 }
 
 .time-grid {
@@ -315,15 +321,15 @@ body {
 }
 
 .event {
-  position: absolute;
+  position: relative; 
   border-radius: 4px;
-  padding: 4px 8px;
+  padding: 2px 6px;
   font-size: 12px;
   overflow: hidden;
-  width: 90%;
-  top: 2px;
-  left: 5%;
-  height: 56px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 95%; 
+  margin: 1px auto;
   cursor: pointer;
   z-index: 3;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -336,29 +342,31 @@ body {
 }
 
 .event.planned {
-  background-color: #039be5;
-  color: white;
+  background-color: #e0f7fa; color: #00796b;
 }
 
 .event.in-progress {
-  background-color: #ff9800;
-  color: white;
+  background-color: #fff3e0; color: #e65100;
 }
 
 .event.completed {
-  background-color: #4caf50;
-  color: white;
+  background-color: #e8f5e9; color: #2e7d32;
 }
 
 .event.cancelled {
-  background-color: #e53935;
-  color: white;
+  background-color: #ffebee; color: #c62828;
 }
 
 .event.pending {
-  background-color: #fff1b8;
-  color: #333;
-  border: 1px solid #ffcc00;
+  background-color: #fffde7; color: #f57f17;
+}
+
+.event-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  gap: 2px;
 }
 
 .calendar-header {
@@ -427,7 +435,6 @@ span.angelbrackets {
     transform: translateY(0) scale(1);
   }
 }
-
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -791,13 +798,6 @@ textarea:focus {
   max-height: 600px;
 }
 
-#main-view-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    justify-content: start;
-}
-
 .month-view-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -905,29 +905,6 @@ textarea:focus {
   color: blue;
 }
 
-.event {
-  position: relative; 
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 95%; 
-  margin: 1px auto;
-  cursor: pointer;
-  z-index: 3;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.event-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-}
-
 .sunday-header {
     color: red;
     font-weight: bold;
@@ -936,4 +913,112 @@ textarea:focus {
 .other-calendar{
   margin-top: 20px;
   display: inline-block;
+}
+
+.visit-tooltip {
+  display: none;
+  position: absolute; 
+  background-color: #333;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  z-index: 1050; 
+  max-width: 250px;
+  font-size: 13px;
+  line-height: 1.6;
+  pointer-events: none; 
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  display: flex;
+  justify-content: end;
+}
+
+.visit-tooltip.visible {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tooltip-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 5px;
+}
+
+.tooltip-body p {
+  margin: 0 0 4px 0;
+}
+
+.tooltip-body p strong {
+  color: #a0e9ff; 
+  margin-right: 5px;
+}
+
+.Btn {
+  position: fixed;
+  bottom: 30px;   
+  right: 30px;    
+  z-index: 1000;  
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  transition-duration: .3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.25);
+  background-color: rgb(255, 65, 65);
+}
+
+.sign {
+  width: 100%;
+  transition-duration: .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign svg {
+  width: 17px;
+}
+
+.sign svg path {
+  fill: white;
+}
+
+.text {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+  transition-duration: .3s;
+}
+
+.Btn:hover {
+  width: 125px;
+  border-radius: 40px;
+  transition-duration: .3s;
+}
+
+.Btn:hover .sign {
+  width: 30%;
+  transition-duration: .3s;
+  padding-left: 20px;
+}
+
+.Btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  transition-duration: .3s;
+  padding-right: 10px;
 }

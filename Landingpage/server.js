@@ -3,7 +3,6 @@ const path = require('path');
 const cors = require('cors');
 const db = require('./models');
 const authtrout = require('./routes/auth');
-const company = require('./routes/company');
 const customer = require('./routes/customer');
 const visit = require('./routes/visit');
 const session = require('express-session');
@@ -39,7 +38,6 @@ app.get('/landing.html', isAuthenticated, (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authtrout);
-app.use('/api/company', isAuthenticated, company);
 app.use('/api/customer', isAuthenticated, customer);
 app.use('/api/visit', isAuthenticated, visit);
 app.use('/api/lead', isAuthenticated, lead)

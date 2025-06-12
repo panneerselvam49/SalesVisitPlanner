@@ -11,14 +11,18 @@ module.exports = (sequelize, DataTypes) => {
     },
     customer_id: {
       type: DataTypes.INTEGER,
-      allowNull: true, 
+      allowNull: true,
+       references: {
+        model: 'Customers', // table name
+        key: 'id',
+      }
     },
     lead_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'Leads',
-            key: 'lead_id',
+            model: 'Leads', // table name
+            key: 'id',
         }
     },
     date: {
@@ -53,6 +57,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     timestamps: false,
   });
+
   Visit.associate = (models) => {
     Visit.belongsTo(models.User, {
       foreignKey: 'employee_id',

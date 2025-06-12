@@ -1,23 +1,33 @@
 module.exports = (sequelize, DataTypes) => {
   const Lead = sequelize.define('Lead', {
-    lead_id: {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    company_name: {
+    // This field holds the company name for the lead
+    name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
     },
+    // Location remains a string field as per your request
     location: {
       type: DataTypes.STRING,
-      allowNull: true, 
+      allowNull: true,
+    },
+    // This field now holds the name of the contact person for the lead
+    person_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    contact_details: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     status:{
         type: DataTypes.ENUM('Active', 'Not Active', 'Converted', 'Scheduled'),
         allowNull: false,
-        defaultValue: 'Active' 
+        defaultValue: 'Active'
     },
   }, {
     tableName: 'Leads',
@@ -25,10 +35,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Lead.associate = (models) => {
-    Lead.hasMany(models.LeadContact, {
-      foreignKey: 'lead_id',
-      as: 'LeadContacts'
-    });
+    // A lead can have many visits
     Lead.hasMany(models.Visit, {
         foreignKey: 'lead_id',
         as: 'Visits'
