@@ -648,7 +648,6 @@ function renderDayWeekView(numberOfDays) {
     
     initializeGridCellListeners();
 }
-
 function renderMonthView() {
     const viewContainer = document.getElementById('main-view-container');
     const today = new Date();
