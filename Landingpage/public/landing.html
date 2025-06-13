@@ -23,8 +23,11 @@
         <div><a href="#" style="font-weight: 900;">Calendar</a></div>
         <div><a href="#" id="visittable">Visits</a></div>
         <div><a href="#">Dashboard</a></div>
+        <button class="Btn" id="logout-btn" title="Logout">
+          <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+          <div class="text">Logout</div>
+        </button>
     </nav>
-
     <div class="main-content">
         <div class="calendar">
             <div class="calendar-header">
@@ -43,7 +46,7 @@
 
         <div class="view-wrapper">
             <div class="week-header">
-                <p id="view-title">Visit Timeline</p>
+                <p id="view-title" style="margin-bottom: 0 !important;">Visit Timeline</p>
                 <button type="button" id="today-btn" class="btn btn-secondary">Today</button>
                 <div class="date-range" id="view-date-range" style="width: 250px; display: flex; ">April 2025</div>
                 <span id="prev-months">&lt</span>
@@ -187,7 +190,7 @@
             </form>
         </div>
     </div>
-
+    <div id="visit-details-popup" class="visit-details-popup"></div>    
     <script src="./landingpage.js"></script>
 </body>
 

@@ -1,36 +1,54 @@
+
 const express = require('express');
 const router = express.Router();
-const { Customer, Company } = require('../models'); 
-router.post('/', async (req, res) => {
-  try {
-    const { customer_id, customer_name, contact, department, company_id } = req.body;
+const { Customer, CustomerMaster, Location } = require('../models');
 
-    if (!customer_name || !company_id) {
-      return res.status(400).json({ error: 'Customer name and company_id are required' });
-    }
-    const companyExists = await Company.findByPk(company_id);
-    if (!companyExists) {
-      return res.status(404).json({ error: 'Company not found' });
-    }
-    const newCustomer = await Customer.create({
-      customer_name,
-      contact,
-      company_id,
-    });
-
-    res.status(201).json(newCustomer);
-  } catch (error) {
-    console.error('Error creating customer:', error);
-    res.status(500).json({ error: 'Failed to create customer' });
-  }
-});
+// GET all customer contacts, including their master company and location information.
 router.get('/', async (req, res) => {
   try {
-    const customers = await Customer.findAll({ include: [{ model: Company, as: 'Company' }] });
+    const customers = await Customer.findAll({
+      include: [{
+        model: CustomerMaster,
+        as: 'CustomerMaster',
+        attributes: ['id', 'name'], 
+        include: [{
+            model: Location,
+            as: 'Location',
+            attributes: ['name']
+        }]
+      }],
+      order: [
+        [{ model: CustomerMaster, as: 'CustomerMaster' }, 'name', 'ASC'],
+        ['person_name', 'ASC']
+      ],
+    });
     res.status(200).json(customers);
   } catch (error) {
-    console.error('Error fetching customers:', error);
-    res.status(500).json({ error: 'Failed to fetch customers' });
+    console.error('Error fetching customer contacts:', error);
+    res.status(500).json({ error: 'Failed to fetch customer contacts' });
+  }
+});
+router.post('/', async (req, res) => {
+  try {
+    const { customerMasterId, person_name, contact_details } = req.body;
+
+    if (!customerMasterId || !person_name) {
+      return res.status(400).json({ error: 'A master customer ID and a person\'s name are required.' });
+    }
+    const masterCustomer = await CustomerMaster.findByPk(customerMasterId);
+    if (!masterCustomer) {
+        return res.status(404).json({ error: 'The specified CustomerMaster was not found.' });
+    }
+    const newCustomerContact = await Customer.create({
+      customerMasterId,
+      person_name,
+      contact_details,
+    });
+
+    res.status(201).json(newCustomerContact);
+  } catch (error) {
+    console.error('Error creating customer contact:', error);
+    res.status(500).json({ error: 'Failed to create customer contact' });
   }
 });
 module.exports = router;
